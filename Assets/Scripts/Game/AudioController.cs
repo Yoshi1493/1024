@@ -6,7 +6,7 @@ public class AudioController : MonoBehaviour
 {
     [SerializeField] AudioSource aux;
 
-    public void PlaySwipeSound()
+    public void PlaySlideSound()
     {
         aux.Play();
     }

@@ -3161,7 +3161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81e800744e7fe4547b155b03e8f7457a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hud: {fileID: 0}
+  hud: {fileID: 304631826}
   audioController: {fileID: 0}
   tileParent: {fileID: 193538212}
 --- !u!1001 &1715994277

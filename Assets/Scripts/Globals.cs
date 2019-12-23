@@ -14,6 +14,16 @@ public static class Globals
 
     public const float SLIDE_ANIMATION_DURATION = 0.25f;
 
+    public enum SlideDirection
+    {
+        Right,
+        Up,
+        Left,
+        Down
+    }
+
+    public const float FOUR_SPAWN_CHANCE = 0.1f;            //10% chance for a tile to be spawned with a value of 4 instead of 2
+
     #endregion
 
     #region Options
