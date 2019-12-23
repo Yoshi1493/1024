@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class AudioController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] AudioSource aux;
 
-    // Update is called once per frame
-    void Update()
+    public void PlaySwipeSound()
     {
-        
+        aux.Play();
     }
 }

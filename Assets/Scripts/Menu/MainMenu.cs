@@ -2,17 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MainMenu : MonoBehaviour
+public class MainMenu : Menu
 {
-    // Start is called before the first frame update
-    void Start()
+    public void OnSelectQuit()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else 
+        Application.Quit();
+#endif
     }
 }

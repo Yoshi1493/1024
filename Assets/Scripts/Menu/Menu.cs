@@ -4,15 +4,21 @@ using UnityEngine;
 
 public class Menu : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    protected Canvas thisMenu;
+
+    protected virtual void Awake()
     {
-        
+        thisMenu = GetComponent<Canvas>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SwitchMenu(Canvas menu)
     {
-        
+        menu.enabled = true;
+        thisMenu.enabled = false;
+    }
+
+    public void LoadScene(int sceneIndex)
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex);
     }
 }

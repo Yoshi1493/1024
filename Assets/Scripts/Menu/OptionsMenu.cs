@@ -2,17 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OptionsMenu : MonoBehaviour
+public class OptionsMenu : Menu
 {
-    // Start is called before the first frame update
-    void Start()
+    protected override void Awake()
     {
-        
+        base.Awake();
+        InitOptions();
     }
 
-    // Update is called once per frame
-    void Update()
+    void InitOptions()
     {
-        
+
     }
+
+    #region Game scene functions
+
+    public void ShowOptionsMenu()
+    {
+        thisMenu.enabled = true;
+    }
+
+    public void OnSelectResume()
+    {
+        thisMenu.enabled = false;
+    }
+
+    #endregion
 }
