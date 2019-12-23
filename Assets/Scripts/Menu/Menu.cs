@@ -11,10 +11,20 @@ public class Menu : MonoBehaviour
         thisMenu = GetComponent<Canvas>();
     }
 
-    public void SwitchMenu(Canvas menu)
+    protected void OpenMenu(Canvas menu)
     {
         menu.enabled = true;
-        thisMenu.enabled = false;
+    }
+
+    protected void CloseMenu(Canvas menu)
+    {
+        menu.enabled = false;
+    }
+
+    public void SwitchMenu(Canvas menu)
+    {
+        OpenMenu(menu);
+        CloseMenu(thisMenu);
     }
 
     public void LoadScene(int sceneIndex)

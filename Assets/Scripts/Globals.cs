@@ -9,8 +9,10 @@ public static class Globals
     public static bool inputEnabled = true;
     public static bool gameOver;
 
+    public static int highScore;
     public static int score;
 
+    public const float SLIDE_ANIMATION_DURATION = 0.25f;
 
     #endregion
 

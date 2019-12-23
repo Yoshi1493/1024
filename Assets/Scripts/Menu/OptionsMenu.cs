@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Globals;
 
 public class OptionsMenu : Menu
 {
@@ -13,6 +14,11 @@ public class OptionsMenu : Menu
     void InitOptions()
     {
 
+    }
+
+    public void ResetHighScore()
+    {
+        highScore = 0;
     }
 
     #region Game scene functions
