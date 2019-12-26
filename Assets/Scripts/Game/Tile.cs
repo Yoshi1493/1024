@@ -6,26 +6,47 @@ using static Globals;
 
 public class Tile : MonoBehaviour
 {
-    TextMeshProUGUI valueDisplay;
-    int value;
+    [SerializeField] AnimationCurve animationCurve;
+    RectTransform rectTransform;
+    Vector2 originalPosition;
 
-    Vector2 originalSpawnPosition;
-    [SerializeField] AnimationCurve movementCurve;
+    TextMeshProUGUI valueDisplay;
+
+    public void SetValue(int _value)
+    {
+        valueDisplay.text = _value.ToString();
+    }
 
     void Awake()
     {
         valueDisplay = GetComponentInChildren<TextMeshProUGUI>();
-        originalSpawnPosition = GetComponent<RectTransform>().anchoredPosition;
+        rectTransform = GetComponent<RectTransform>();
+        originalPosition = rectTransform.anchoredPosition;
+
+        gameObject.SetActive(false);
     }
 
-    public void SetValue(int _value)
+    public IEnumerator Slide(Vector2 distance)
     {
-        value = _value;
-        valueDisplay.text = value.ToString();
+        Vector2 startPos = rectTransform.anchoredPosition;
+        Vector2 endPos = startPos + distance * TILE_SIZE;
+
+        float currentLerpTime = 0f;
+        while (currentLerpTime < SLIDE_ANIMATION_DURATION)
+        {
+            float t = currentLerpTime / SLIDE_ANIMATION_DURATION;
+            rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, animationCurve.Evaluate(t));
+
+            yield return new WaitForEndOfFrame();
+            currentLerpTime += Time.deltaTime;
+        }
+
+        rectTransform.anchoredPosition = endPos;
     }
 
-    public IEnumerator Slide(SlideDirection slideDirection, int spaces)
+    public void ResetPosition()
     {
-        yield return null;
+        rectTransform.anchoredPosition = originalPosition;
+        gameObject.SetActive(false);
     }
 }
