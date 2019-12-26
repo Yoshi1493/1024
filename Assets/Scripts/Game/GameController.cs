@@ -43,9 +43,9 @@ public class GameController : MonoBehaviour
         //SpawnNewTile();
         //SpawnNewTile();
         SpawnTileAt((0, 0), 2);
-        SpawnTileAt((0, 1), 2);
-        SpawnTileAt((0, 2), 2);
-        SpawnTileAt((0, 3), 2);
+        SpawnTileAt((1, 1), 2);
+        SpawnTileAt((2, 2), 2);
+        SpawnTileAt((3, 3), 2);
 
         DebugGameBoard();
     }
@@ -154,13 +154,13 @@ public class GameController : MonoBehaviour
                         //if there is another tile to the right of this tile, compare values
                         if (gameBoard[row, c] != 0)
                         {
-                            //if values are same, slide tile to column c
+                            //if values match, slide tile to column c
                             if (gameBoard[row, col] == gameBoard[row, c])
                             {
                                 StartCoroutine(SlideTile((row, col), (row, c)));
                                 break;
                             }
-                            //otherwise if values are different, slide tile to column (c - 1)
+                            //otherwise if values are different, slide tile to 1 column before this
                             else
                             {
                                 //call SlideTile only if tile should move at all
@@ -188,7 +188,50 @@ public class GameController : MonoBehaviour
 
     public void SlideUp()
     {
-
+        //loop from second-bottom row to top row
+        for (int row = BOARD_SIZE - 2; row >= 0; row--)
+        {
+            //loop through all columns
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                //if tile is visible
+                if (gameBoard[row, col] != 0)
+                {
+                    //loop from (the row below this) to (bottom row)
+                    for (int r = row + 1; r < BOARD_SIZE; r++)
+                    {
+                        //if there is another tile below this tile, compare values
+                        if (gameBoard[r, col] != 0)
+                        {
+                            //if values match, slide tile to ro wr
+                            if (gameBoard[row, col] == gameBoard[r, col])
+                            {
+                                StartCoroutine(SlideTile((row, col), (r, col)));
+                                break;
+                            }
+                            //otherwise if values are different, slide tile to 1 row before this
+                            else
+                            {
+                                //call SlideTile only if tile should move at all
+                                if (row != r - 1)
+                                {
+                                    StartCoroutine(SlideTile((row, col), (r - 1, col)));
+                                }
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //otherwise if there is no other tile in this direction, slide tile to bottom row
+                            if (r == BOARD_SIZE - 1)
+                            {
+                                StartCoroutine(SlideTile((row, col), (BOARD_SIZE - 1, col)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void SlideLeft()
@@ -196,7 +239,7 @@ public class GameController : MonoBehaviour
         //loop from second-left column to right column
         for (int col = 1; col < BOARD_SIZE; col++)
         {
-            //loop throguh all rows
+            //loop through all rows
             for (int row = 0; row < BOARD_SIZE; row++)
             {
                 //if tile is visible
@@ -205,16 +248,16 @@ public class GameController : MonoBehaviour
                     //loop from (the column left of this) to (left column)
                     for (int c = col - 1; c >= 0; c--)
                     {
-                        //if there is another tile to the right of this, compare values
+                        //if there is another tile to the left of this tile, compare values
                         if (gameBoard[row, c] != 0)
                         {
-                            //if values are same, slide tile to column c
+                            //if values match, slide tile to column c
                             if (gameBoard[row, col] == gameBoard[row, c])
                             {
                                 StartCoroutine(SlideTile((row, col), (row, c)));
                                 break;
                             }
-                            //otherwise if values are different, slide tile to column (c + 1)
+                            //otherwise if values are different, slide tile to 1 column before this
                             else
                             {
                                 //call SlideTile only if tile should move at all
@@ -242,7 +285,50 @@ public class GameController : MonoBehaviour
 
     public void SlideDown()
     {
-
+        //loop from second-top row to bottom row
+        for (int row = 1; row < BOARD_SIZE; row++)
+        {
+            //loop through all columns
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                //if tile is visible
+                if (gameBoard[row, col] != 0)
+                {
+                    //loop from (the row above this) to (top row)
+                    for (int r = row - 1; r >= 0; r--)
+                    {
+                        //if there is another tile above this tile, compare values
+                        if (gameBoard[r, col] != 0)
+                        {
+                            //if values match, slide tile to row r
+                            if (gameBoard[row, col] == gameBoard[r, col])
+                            {
+                                StartCoroutine(SlideTile((row, col), (r, col)));
+                                break;
+                            }
+                            //otherwise if values are different, slide tile to 1 row before r
+                            else
+                            {
+                                //call SlideTile only if tile should move at all
+                                if (row != row + 1)
+                                {
+                                    StartCoroutine(SlideTile((row, col), (r + 1, col)));
+                                }
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //otherwise if there is no other tile in this direction, slide tile to top row
+                            if (r == 0)
+                            {
+                                StartCoroutine(SlideTile((row, col), (0, col)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     IEnumerator SlideTile((int row, int col) from, (int row, int col) to)
@@ -262,7 +348,7 @@ public class GameController : MonoBehaviour
 
         //slide tiles based on difference between <to> and <from>
         Vector2 slideDistance = new Vector2(to.col - from.col, to.row - from.row);
-        print(slideDistance);
+        //print(slideDistance);
         StartCoroutine(tiles[from.row, from.col].Slide(slideDistance));
 
         //disable input until slide animation finishes
