@@ -45,11 +45,7 @@ public class GameController : MonoBehaviour
         SpawnNewTile();
 
         //set initial game board state
-        gameBoardState.Push(gameBoard);
-        //SpawnTileAt((0, 0), 2);
-        //SpawnTileAt((1, 1), 2);
-        //SpawnTileAt((2, 2), 2);
-        //SpawnTileAt((3, 3), 2);
+        gameBoardState.Push(GetGameBoardCopy());
 
         DebugGameBoard();
     }
@@ -108,33 +104,31 @@ public class GameController : MonoBehaviour
         {
             GetKeyInput();
         }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            DebugGameBoard();
-        }
     }
 
     void GetKeyInput()
     {
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
-            SlideRight();
-            DebugGameBoard();
-        }
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            SlideUp();
-            DebugGameBoard();
-        }
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            SlideLeft();
-            DebugGameBoard();
-        }
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            SlideDown();
-            DebugGameBoard();
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                SlideRight();
+            }
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                SlideUp();
+            }
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                SlideLeft();
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                SlideDown();
+            }
+
+            StartCoroutine(UpdateGameBoardState());
+            hud.UpdateHUD();
         }
     }
 
@@ -315,14 +309,6 @@ public class GameController : MonoBehaviour
 
     IEnumerator SlideTile((int row, int col) from, (int row, int col) to)
     {
-        /*if (gameBoard[to.row, to.col] == gameBoard[from.row, from.col])
-        {
-            gameBoard[to.row, to.col] = gameBoard[from.row, from.col] *= 2;
-        }
-        else
-        {
-            gameBoard[to.row, to.col] = gameBoard[from.row, from.col];
-        }*/
         gameBoard[to.row, to.col] = gameBoard[from.row, from.col] *= gameBoard[to.row, to.col] == gameBoard[from.row, from.col] ? 2 : 1;
         gameBoard[from.row, from.col] = 0;
 
@@ -342,6 +328,39 @@ public class GameController : MonoBehaviour
         //this creates an illusion that tiles are sliding around, but all tiles are actually resetting their position after a move
         tiles[from.row, from.col].ResetPosition();
         tiles[to.row, to.col].gameObject.SetActive(true);
+    }
+
+    IEnumerator UpdateGameBoardState()
+    {
+        yield return new WaitForSeconds(SLIDE_ANIMATION_DURATION);
+
+        if (GameStateHasChanged())
+        {
+            gameBoardState.Push(GetGameBoardCopy());
+            print(string.Format("game state updated. gameBoardState count: {0}", gameBoardState.Count));
+        }
+    }
+
+    bool GameStateHasChanged()
+    {
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                //return true if any item between gameBoard and gameBoardState don't match
+                if (gameBoard[row, col] != gameBoardState.Peek()[row, col])
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    int[,] GetGameBoardCopy()
+    {
+        return gameBoard.Clone() as int[,];
     }
 
     #region DEBUG
