@@ -12,15 +12,7 @@ public class HUD : Menu
 
     public void UpdateHUD()
     {
-        //update score
-        scoreDisplay.text = score.ToString();
-
-        //update highscore if necessary
-        if (highScore < score)
-        {
-            highScore = score;
-            highscoreDisplay.text = highScore.ToString();
-        }
+        UpdateScore();
 
         if (gameOver)
         {
@@ -29,8 +21,30 @@ public class HUD : Menu
         }
     }
 
+    void UpdateScore()
+    {
+        scoreDisplay.text = score.ToString();
+
+        //update highscore if necessary
+        if (highScore < score)
+        {
+            highScore = score;
+            UpdateHighscoreDisplay();
+        }
+    }
+
+    public void UpdateHighscoreDisplay()
+    {
+        highscoreDisplay.text = highScore.ToString();
+    }
+
     public void DisplayOptionsMenu(Canvas optionsMenu)
     {
         OpenMenu(optionsMenu);
+    }
+
+    public void HideOptionsMenu(Canvas optionsMenu)
+    {
+        CloseMenu(optionsMenu);
     }
 }

@@ -186,26 +186,86 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void SlideUp()
+    {
+
+    }
+
+    public void SlideLeft()
+    {
+        //loop from second-left column to right column
+        for (int col = 1; col < BOARD_SIZE; col++)
+        {
+            //loop throguh all rows
+            for (int row = 0; row < BOARD_SIZE; row++)
+            {
+                //if tile is visible
+                if (gameBoard[row, col] != 0)
+                {
+                    //loop from (the column left of this) to (left column)
+                    for (int c = col - 1; c >= 0; c--)
+                    {
+                        //if there is another tile to the right of this, compare values
+                        if (gameBoard[row, c] != 0)
+                        {
+                            //if values are same, slide tile to column c
+                            if (gameBoard[row, col] == gameBoard[row, c])
+                            {
+                                StartCoroutine(SlideTile((row, col), (row, c)));
+                                break;
+                            }
+                            //otherwise if values are different, slide tile to column (c + 1)
+                            else
+                            {
+                                //call SlideTile only if tile should move at all
+                                if (col != c + 1)
+                                {
+                                    StartCoroutine(SlideTile((row, col), (row, c + 1)));
+                                }
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //otherwise if there is no other tile in this direction, slide tile to left column
+                            if (c == 0)
+                            {
+                                StartCoroutine(SlideTile((row, col), (row, 0)));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void SlideDown()
+    {
+
+    }
+
     IEnumerator SlideTile((int row, int col) from, (int row, int col) to)
     {
         print(string.Format("moving {0} to {1}", from, to));
 
         if (gameBoard[to.row, to.col] == gameBoard[from.row, from.col])
         {
-            //tiles[to.row, to.col].SetValue(gameBoard[from.row, from.col] *= 2);
             gameBoard[to.row, to.col] = gameBoard[from.row, from.col] *= 2;
         }
         else
         {
-            //tiles[to.row, to.col].SetValue(gameBoard[from.row, from.col]);
             gameBoard[to.row, to.col] = gameBoard[from.row, from.col];
         }
 
         gameBoard[from.row, from.col] = 0;
 
+        //slide tiles based on difference between <to> and <from>
         Vector2 slideDistance = new Vector2(to.col - from.col, to.row - from.row);
+        print(slideDistance);
         StartCoroutine(tiles[from.row, from.col].Slide(slideDistance));
 
+        //disable input until slide animation finishes
         inputEnabled = false;
         yield return new WaitForSeconds(SLIDE_ANIMATION_DURATION);
         inputEnabled = true;
@@ -217,21 +277,6 @@ public class GameController : MonoBehaviour
         //this creates an illusion that tiles are sliding around, but all tiles are actually resetting their position after a move
         tiles[from.row, from.col].ResetPosition();
         tiles[to.row, to.col].gameObject.SetActive(true);
-    }
-
-    public void SlideUp()
-    {
-
-    }
-
-    public void SlideLeft()
-    {
-
-    }
-
-    public void SlideDown()
-    {
-
     }
 
     #region DEBUG

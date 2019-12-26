@@ -44,6 +44,22 @@ public class Tile : MonoBehaviour
         rectTransform.anchoredPosition = endPos;
     }
 
+    public IEnumerator Scale(Vector3 startScale, Vector3 endScale)
+    {
+        float currentLerpTime = 0f;
+        while (currentLerpTime < SLIDE_ANIMATION_DURATION)
+        {
+            float t = currentLerpTime / SLIDE_ANIMATION_DURATION;
+            rectTransform.localScale = Vector3.Lerp(startScale, endScale, animationCurve.Evaluate(t));
+
+            yield return new WaitForEndOfFrame();
+            currentLerpTime += Time.deltaTime;
+        }
+
+        rectTransform.localScale = endScale;
+        ResetPosition();
+    }
+
     public void ResetPosition()
     {
         rectTransform.anchoredPosition = originalPosition;
