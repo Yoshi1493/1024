@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
     Tile[,] tiles = new Tile[BOARD_SIZE, BOARD_SIZE];
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
+    Stack<int[,]> gameBoardState = new Stack<int[,]>();
 
     void Awake()
     {
@@ -40,12 +41,15 @@ public class GameController : MonoBehaviour
     void Start()
     {
         ResetGameState();
-        //SpawnNewTile();
-        //SpawnNewTile();
-        SpawnTileAt((0, 0), 2);
-        SpawnTileAt((1, 1), 2);
-        SpawnTileAt((2, 2), 2);
-        SpawnTileAt((3, 3), 2);
+        SpawnNewTile();
+        SpawnNewTile();
+
+        //set initial game board state
+        gameBoardState.Push(gameBoard);
+        //SpawnTileAt((0, 0), 2);
+        //SpawnTileAt((1, 1), 2);
+        //SpawnTileAt((2, 2), 2);
+        //SpawnTileAt((3, 3), 2);
 
         DebugGameBoard();
     }
@@ -80,10 +84,7 @@ public class GameController : MonoBehaviour
         {
             (int row, int col) randEmptySpace = emptySpaces[Random.Range(0, emptySpaces.Count)];
             int tileValue = Random.value < FOUR_SPAWN_CHANCE ? 4 : 2;
-            /*
-            randEmptySpace.row = 0;
-            tileValue = 2;
-            */
+
             SpawnTileAt(randEmptySpace, tileValue);
         }
         //otherwise game is over
@@ -194,25 +195,21 @@ public class GameController : MonoBehaviour
             //loop through all columns
             for (int col = 0; col < BOARD_SIZE; col++)
             {
-                //if tile is visible
                 if (gameBoard[row, col] != 0)
                 {
                     //loop from (the row below this) to (bottom row)
                     for (int r = row + 1; r < BOARD_SIZE; r++)
                     {
-                        //if there is another tile below this tile, compare values
                         if (gameBoard[r, col] != 0)
                         {
-                            //if values match, slide tile to ro wr
+                            //if values match, slide tile to row r
                             if (gameBoard[row, col] == gameBoard[r, col])
                             {
                                 StartCoroutine(SlideTile((row, col), (r, col)));
                                 break;
                             }
-                            //otherwise if values are different, slide tile to 1 row before this
                             else
                             {
-                                //call SlideTile only if tile should move at all
                                 if (row != r - 1)
                                 {
                                     StartCoroutine(SlideTile((row, col), (r - 1, col)));
@@ -222,7 +219,6 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            //otherwise if there is no other tile in this direction, slide tile to bottom row
                             if (r == BOARD_SIZE - 1)
                             {
                                 StartCoroutine(SlideTile((row, col), (BOARD_SIZE - 1, col)));
@@ -239,28 +235,22 @@ public class GameController : MonoBehaviour
         //loop from second-left column to right column
         for (int col = 1; col < BOARD_SIZE; col++)
         {
-            //loop through all rows
             for (int row = 0; row < BOARD_SIZE; row++)
             {
-                //if tile is visible
                 if (gameBoard[row, col] != 0)
                 {
                     //loop from (the column left of this) to (left column)
                     for (int c = col - 1; c >= 0; c--)
                     {
-                        //if there is another tile to the left of this tile, compare values
                         if (gameBoard[row, c] != 0)
                         {
-                            //if values match, slide tile to column c
                             if (gameBoard[row, col] == gameBoard[row, c])
                             {
                                 StartCoroutine(SlideTile((row, col), (row, c)));
                                 break;
                             }
-                            //otherwise if values are different, slide tile to 1 column before this
                             else
                             {
-                                //call SlideTile only if tile should move at all
                                 if (col != c + 1)
                                 {
                                     StartCoroutine(SlideTile((row, col), (row, c + 1)));
@@ -270,7 +260,6 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            //otherwise if there is no other tile in this direction, slide tile to left column
                             if (c == 0)
                             {
                                 StartCoroutine(SlideTile((row, col), (row, 0)));
@@ -288,28 +277,22 @@ public class GameController : MonoBehaviour
         //loop from second-top row to bottom row
         for (int row = 1; row < BOARD_SIZE; row++)
         {
-            //loop through all columns
             for (int col = 0; col < BOARD_SIZE; col++)
             {
-                //if tile is visible
                 if (gameBoard[row, col] != 0)
                 {
                     //loop from (the row above this) to (top row)
                     for (int r = row - 1; r >= 0; r--)
                     {
-                        //if there is another tile above this tile, compare values
                         if (gameBoard[r, col] != 0)
                         {
-                            //if values match, slide tile to row r
                             if (gameBoard[row, col] == gameBoard[r, col])
                             {
                                 StartCoroutine(SlideTile((row, col), (r, col)));
                                 break;
                             }
-                            //otherwise if values are different, slide tile to 1 row before r
                             else
                             {
-                                //call SlideTile only if tile should move at all
                                 if (row != row + 1)
                                 {
                                     StartCoroutine(SlideTile((row, col), (r + 1, col)));
@@ -319,7 +302,6 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            //otherwise if there is no other tile in this direction, slide tile to top row
                             if (r == 0)
                             {
                                 StartCoroutine(SlideTile((row, col), (0, col)));
@@ -333,22 +315,19 @@ public class GameController : MonoBehaviour
 
     IEnumerator SlideTile((int row, int col) from, (int row, int col) to)
     {
-        print(string.Format("moving {0} to {1}", from, to));
-
-        if (gameBoard[to.row, to.col] == gameBoard[from.row, from.col])
+        /*if (gameBoard[to.row, to.col] == gameBoard[from.row, from.col])
         {
             gameBoard[to.row, to.col] = gameBoard[from.row, from.col] *= 2;
         }
         else
         {
             gameBoard[to.row, to.col] = gameBoard[from.row, from.col];
-        }
-
+        }*/
+        gameBoard[to.row, to.col] = gameBoard[from.row, from.col] *= gameBoard[to.row, to.col] == gameBoard[from.row, from.col] ? 2 : 1;
         gameBoard[from.row, from.col] = 0;
 
         //slide tiles based on difference between <to> and <from>
         Vector2 slideDistance = new Vector2(to.col - from.col, to.row - from.row);
-        //print(slideDistance);
         StartCoroutine(tiles[from.row, from.col].Slide(slideDistance));
 
         //disable input until slide animation finishes
@@ -369,7 +348,7 @@ public class GameController : MonoBehaviour
 
     void DebugGameBoard()
     {
-        for (int row = 0; row < BOARD_SIZE; row++)
+        for (int row = BOARD_SIZE - 1; row >= 0; row--)
         {
             string output = "";
 
