@@ -14,8 +14,8 @@ public class HUD : Menu
     {
         UpdateScore();
 
-        undoButton.interactable = gameBoardStates.Count > 0;
-        undoButton.GetComponentInChildren<TextMeshProUGUI>().color = gameBoardStates.Count > 0 ? Color.black : Color.grey;
+        undoButton.interactable = gameBoardStates.Count > 1;
+        undoButton.GetComponentInChildren<TextMeshProUGUI>().color = gameBoardStates.Count > 1 ? Color.black : Color.grey;
 
         if (gameOver)
         {

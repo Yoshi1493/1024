@@ -108,8 +108,7 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
-            UpdateGameBoardState();
-            hud.UpdateHUD();
+            int[,] lastGameBoardState = GetGameBoardCopy();
 
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
@@ -127,6 +126,9 @@ public class GameController : MonoBehaviour
             {
                 SlideDown();
             }
+
+            UpdateGameBoardState(lastGameBoardState);
+            hud.UpdateHUD();
         }
     }
 
@@ -328,24 +330,24 @@ public class GameController : MonoBehaviour
         tiles[to.row, to.col].gameObject.SetActive(true);
     }
 
-    void UpdateGameBoardState()
+    void UpdateGameBoardState(int[,] gameBoardState)
     {
         //if valid move was made, save previous game state and spawn new tile
-        if (GameStateHasChanged())
+        if (GameStateHasChanged(gameBoardState))
         {
-            gameBoardStates.Push(GetGameBoardCopy());
-            SpawnNewTile();
+            gameBoardStates.Push(gameBoardState);
+            //SpawnNewTile();
         }
     }
 
-    bool GameStateHasChanged()
+    bool GameStateHasChanged(int[,] gameBoardState)
     {
         for (int row = 0; row < BOARD_SIZE; row++)
         {
             for (int col = 0; col < BOARD_SIZE; col++)
             {
                 //return true if any item between gameBoard and most recent gameBoardState doesn't match
-                if (gameBoard[row, col] != gameBoardStates.Peek()[row, col])
+                if (gameBoard[row, col] != gameBoardState[row, col])
                 {
                     return true;
                 }
