@@ -44,7 +44,7 @@ public class GameController : MonoBehaviour
         SpawnNewTile();
 
         //set initial game board state
-        gameBoardStates.Push(GetGameBoardCopy());
+        gameBoardStates.Push(gameBoard.Clone() as int[,]);
     }
 
     void ResetGameState()
@@ -108,7 +108,7 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
-            int[,] lastGameBoardState = GetGameBoardCopy();
+            int[,] lastGameBoardState = gameBoard.Clone() as int[,];
 
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
@@ -357,15 +357,12 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    int[,] GetGameBoardCopy()
-    {
-        return gameBoard.Clone() as int[,];
-    }
-
     public void Undo()
     {
+        //remove last gameBoardState from stack
         int[,] lastGameBoardState = gameBoardStates.Pop();
 
+        //update gameBoard and tile displays to match lastGameBoardState
         for (int row = 0; row < BOARD_SIZE; row++)
         {
             for (int col = 0; col < BOARD_SIZE; col++)
