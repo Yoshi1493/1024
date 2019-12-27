@@ -9,6 +9,8 @@ public static class Globals
     public static bool inputEnabled = true;
     public static bool gameOver;
 
+    public static Stack<int[,]> gameBoardStates = new Stack<int[,]>();
+
     public static int highScore;
     public static int score;
 

@@ -15,6 +15,7 @@ public class Tile : MonoBehaviour
     public void SetValue(int _value)
     {
         valueDisplay.text = _value.ToString();
+        gameObject.SetActive(_value != 0);
     }
 
     void Awake()

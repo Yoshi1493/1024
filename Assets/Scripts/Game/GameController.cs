@@ -14,7 +14,6 @@ public class GameController : MonoBehaviour
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
     Tile[,] tiles = new Tile[BOARD_SIZE, BOARD_SIZE];
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
-    Stack<int[,]> gameBoardState = new Stack<int[,]>();
 
     void Awake()
     {
@@ -45,9 +44,7 @@ public class GameController : MonoBehaviour
         SpawnNewTile();
 
         //set initial game board state
-        gameBoardState.Push(GetGameBoardCopy());
-
-        DebugGameBoard();
+        gameBoardStates.Push(GetGameBoardCopy());
     }
 
     void ResetGameState()
@@ -56,6 +53,7 @@ public class GameController : MonoBehaviour
         gameOver = false;
         score = 0;
 
+        gameBoardStates.Clear();
         hud.UpdateHighscoreDisplay();
     }
 
@@ -110,6 +108,9 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
+            UpdateGameBoardState();
+            hud.UpdateHUD();
+
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SlideRight();
@@ -126,9 +127,6 @@ public class GameController : MonoBehaviour
             {
                 SlideDown();
             }
-
-            StartCoroutine(UpdateGameBoardState());
-            hud.UpdateHUD();
         }
     }
 
@@ -330,14 +328,13 @@ public class GameController : MonoBehaviour
         tiles[to.row, to.col].gameObject.SetActive(true);
     }
 
-    IEnumerator UpdateGameBoardState()
+    void UpdateGameBoardState()
     {
-        yield return new WaitForSeconds(SLIDE_ANIMATION_DURATION);
-
+        //if valid move was made, save previous game state and spawn new tile
         if (GameStateHasChanged())
         {
-            gameBoardState.Push(GetGameBoardCopy());
-            print(string.Format("game state updated. gameBoardState count: {0}", gameBoardState.Count));
+            gameBoardStates.Push(GetGameBoardCopy());
+            SpawnNewTile();
         }
     }
 
@@ -347,8 +344,8 @@ public class GameController : MonoBehaviour
         {
             for (int col = 0; col < BOARD_SIZE; col++)
             {
-                //return true if any item between gameBoard and gameBoardState don't match
-                if (gameBoard[row, col] != gameBoardState.Peek()[row, col])
+                //return true if any item between gameBoard and most recent gameBoardState doesn't match
+                if (gameBoard[row, col] != gameBoardStates.Peek()[row, col])
                 {
                     return true;
                 }
@@ -361,6 +358,23 @@ public class GameController : MonoBehaviour
     int[,] GetGameBoardCopy()
     {
         return gameBoard.Clone() as int[,];
+    }
+
+    public void Undo()
+    {
+        int[,] lastGameBoardState = gameBoardStates.Pop();
+
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                gameBoard[row, col] = lastGameBoardState[row, col];
+                tiles[row, col].SetValue(gameBoard[row, col]);
+                tiles[row, col].enabled = gameBoard[row, col] != 0;
+            }
+        }
+
+        hud.UpdateHUD();
     }
 
     #region DEBUG

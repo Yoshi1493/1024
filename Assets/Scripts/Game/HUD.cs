@@ -8,11 +8,14 @@ using static Globals;
 public class HUD : Menu
 {
     [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay;
-    [SerializeField] Button optionsButton, mainMenuButton;
+    [SerializeField] Button undoButton, optionsButton, mainMenuButton;
 
     public void UpdateHUD()
     {
         UpdateScore();
+
+        undoButton.interactable = gameBoardStates.Count > 0;
+        undoButton.GetComponentInChildren<TextMeshProUGUI>().color = gameBoardStates.Count > 0 ? Color.black : Color.grey;
 
         if (gameOver)
         {
