@@ -96,7 +96,6 @@ public class GameController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SlideRight();
-                DebugGameBoard();
             }
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
@@ -110,27 +109,182 @@ public class GameController : MonoBehaviour
             {
                 SlideDown();
             }
+
+            DebugGameBoard();
         }
     }
 
     public void SlideRight()
     {
+        //for each row
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            //for each column except the rightmost one, looping right to left
+            for (int col = BOARD_SIZE - 2; col >= 0; col--)
+            {
+                //if game board at current index has a tile on it, slide it as far right as possible
+                if (gameBoard[row, col] != 0)
+                {
+                    //loop from [1 column to the right of the current column] to [rightmost column], looking for the first non-empty index
+                    for (int c = col + 1; c < BOARD_SIZE; c++)
+                    {
+                        //if game board at checked column has a tile on it, check if it has the same value as current column 
+                        if (gameBoard[row, c] != 0)
+                        {
+                            //if they're the same value, slide tile at current index to checked column
+                            if (gameBoard[row, c] == gameBoard[row, col])
+                            {
+                                SlideTile((row, col), (row, c));
+                            }
+                            //otherwise slide tile at current index to 1 before checked column
+                            else
+                            {
+                                SlideTile((row, col), (row, c - 1));
+                            }
 
+                            //break out of loop; no need to continue checking
+                            break;
+                        }
+                        //otherwise (if game board at checked column is empty)
+                        else
+                        {
+                            //also if checked column is the rightmost column (i.e. loop is at its last iteration), slide to rightmost column
+                            if (c == BOARD_SIZE - 1)
+                            {
+                                SlideTile((row, col), (row, c));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void SlideUp()
     {
-        
+        //for each column
+        for (int col = 0; col < BOARD_SIZE; col++)
+        {
+            //for each row except the topmost one, looping top to bottom
+            for (int row = BOARD_SIZE - 2; row >= 0; row--)
+            {
+                //if game board at current index has a tile on it, slide it as farm up as possible
+                if (gameBoard[row, col] != 0)
+                {
+                    //loop from [1 above current row] to [topmost row], looking for the first non-empty index
+                    for (int r = row + 1; r < BOARD_SIZE; r++)
+                    {
+                        //if game board at checked row has a tile on it, check if it has the same value as current row
+                        if (gameBoard[r, col] != 0)
+                        {
+                            //if they're the same value, slide tile at current index to checked row
+                            if (gameBoard[r, col] == gameBoard[row, col])
+                            {
+                                SlideTile((row, col), (r, col));
+                            }
+                            //otherwise slide tile at current index to 1 before checked row
+                            else
+                            {
+                                SlideTile((row, col), (r - 1, col));
+                            }
+
+                            break;
+                        }
+                        //otherwise (if game board at checked row is empty)
+                        else
+                        {
+                            //also if checked row is the topmost row
+                            if (r == BOARD_SIZE - 1)
+                            {
+                                SlideTile((row, col), (r, col));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void SlideLeft()
     {
-        
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            //for each column except the leftmost one, looping left to right
+            for (int col = 1; col < BOARD_SIZE; col++)
+            {
+                //if game board at current index has a tile on it, slide it as far left as possible
+                if (gameBoard[row, col] != 0)
+                {
+                    //loop from [1 column to the left of the current column] to [leftmost column], looking for the first non-empty index
+                    for (int c = col - 1; c >= 0; c--)
+                    {
+                        //if game board at checked column has a tile on it, check if it has the same value as current column
+                        if (gameBoard[row, c] != 0)
+                        {
+                            //if they're the same value, slide tile at current index to checked column
+                            if (gameBoard[row, c] == gameBoard[row, col])
+                            {
+                                SlideTile((row, col), (row, c));
+                            }
+                            //otherwise slide tile at current index to 1 before checked column
+                            else
+                            {
+                                SlideTile((row, col), (row, c + 1));
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            if (c == 0)
+                            {
+                                SlideTile((row, col), (row, c));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void SlideDown()
     {
-        
+        for (int col = 0; col < BOARD_SIZE; col++)
+        {
+            for (int row = 1; row < BOARD_SIZE; row++)
+            {
+                if (gameBoard[row, col] != 0)
+                {
+                    for (int r = row - 1; r >= 0; r--)
+                    {
+                        if (gameBoard[r, col] != 0)
+                        {
+                            if (gameBoard[r, col] == gameBoard[row, col])
+                            {
+                                SlideTile((row, col), (r, col));
+                            }
+                            else
+                            {
+                                SlideTile((row, col), (r + 1, col));
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            if (r == 0)
+                            {
+                                SlideTile((row, col), (r, col));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void SlideTile((int row, int col) from, (int row, int col) to)
