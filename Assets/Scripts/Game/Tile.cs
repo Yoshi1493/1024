@@ -6,37 +6,31 @@ using static Globals;
 
 public class Tile : MonoBehaviour
 {
-    [SerializeField] AnimationCurve animationCurve;
-    RectTransform rectTransform;
-    Vector2 originalPosition;
+    [SerializeField] Animator anim;
+    [SerializeField] AnimationCurve slideAnimationCurve;
+    [SerializeField] TextMeshProUGUI valueDisplay;
+    [SerializeField] RectTransform rectTransform;
 
-    TextMeshProUGUI valueDisplay;
-
-    public void SetValue(int _value)
+    public void Initialize((int row, int col) coordinate, int value)
     {
-        valueDisplay.text = _value.ToString();
-        gameObject.SetActive(_value != 0);
+        //set anchored position
+        rectTransform.anchoredPosition = BoardToWorldSpace(coordinate);
+
+        //set value
+        valueDisplay.text = value.ToString();
+        gameObject.SetActive(value != 0);
     }
 
-    void Awake()
+    public IEnumerator Slide((int row, int col) start, (int row, int col) end)
     {
-        valueDisplay = GetComponentInChildren<TextMeshProUGUI>();
-        rectTransform = GetComponent<RectTransform>();
-        originalPosition = rectTransform.anchoredPosition;
-
-        gameObject.SetActive(false);
-    }
-
-    public IEnumerator Slide(Vector2 distance)
-    {
-        Vector2 startPos = rectTransform.anchoredPosition;
-        Vector2 endPos = startPos + distance * TILE_SIZE;
+        Vector2 startPos = BoardToWorldSpace(start);
+        Vector2 endPos = BoardToWorldSpace(end);
 
         float currentLerpTime = 0f;
         while (currentLerpTime < SLIDE_ANIMATION_DURATION)
         {
             float t = currentLerpTime / SLIDE_ANIMATION_DURATION;
-            rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, animationCurve.Evaluate(t));
+            rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, slideAnimationCurve.Evaluate(t));
 
             yield return new WaitForEndOfFrame();
             currentLerpTime += Time.deltaTime;
@@ -45,25 +39,18 @@ public class Tile : MonoBehaviour
         rectTransform.anchoredPosition = endPos;
     }
 
-    public IEnumerator Scale(Vector3 startScale, Vector3 endScale)
+    public void Shrink()
     {
-        float currentLerpTime = 0f;
-        while (currentLerpTime < SLIDE_ANIMATION_DURATION)
-        {
-            float t = currentLerpTime / SLIDE_ANIMATION_DURATION;
-            rectTransform.localScale = Vector3.Lerp(startScale, endScale, animationCurve.Evaluate(t));
-
-            yield return new WaitForEndOfFrame();
-            currentLerpTime += Time.deltaTime;
-        }
-
-        rectTransform.localScale = endScale;
-        ResetPosition();
+        anim.SetTrigger("Shrink");
     }
 
-    public void ResetPosition()
+
+    Vector2 BoardToWorldSpace((int row, int col) coordinate)
     {
-        rectTransform.anchoredPosition = originalPosition;
-        gameObject.SetActive(false);
+        Vector2 result;
+        result.x = coordinate.col * TILE_SIZE - (TILE_SIZE * 1.5f);
+        result.y = coordinate.row * TILE_SIZE - (TILE_SIZE * 1.5f);
+
+        return result;
     }
 }

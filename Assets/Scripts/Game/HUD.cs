@@ -14,10 +14,6 @@ public class HUD : Menu
     {
         UpdateScore();
 
-        //enable undo button as long as there is a previous state to undo to
-        undoButton.interactable = gameBoardStates.Count > 1;
-        undoButton.GetComponentInChildren<TextMeshProUGUI>().color = gameBoardStates.Count > 1 ? Color.black : Color.grey;
-
         if (gameOver)
         {
             optionsButton.gameObject.SetActive(false);
