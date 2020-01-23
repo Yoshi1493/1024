@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
 
     const int BOARD_SIZE = 4;
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
+    GameObject[,] tiles = new GameObject[BOARD_SIZE, BOARD_SIZE];
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
 
     public const float FOUR_SPAWN_CHANCE = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
@@ -72,10 +73,10 @@ public class GameController : MonoBehaviour
 
     void SpawnTileAt((int row, int col) coordinate, int value)
     {
-        GameObject newTile = Instantiate(tile, tileParent);
+        tiles[coordinate.row, coordinate.col] = Instantiate(tile, tileParent);
 
-        //call Tile.Initialize to set its coordinate and value display
-        newTile.GetComponent<Tile>().Initialize(coordinate, value);
+        //call Initialize to set its coordinate and value display
+        tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
 
         //update respective gameBoard index
         gameBoard[coordinate.row, coordinate.col] = value;
@@ -134,7 +135,7 @@ public class GameController : MonoBehaviour
                             //if they're the same value, slide tile at current index to checked column
                             if (gameBoard[row, c] == gameBoard[row, col])
                             {
-                                SlideTile((row, col), (row, c));
+                                MergeTile((row, col), (row, c));
                             }
                             //otherwise slide tile at current index to 1 before checked column
                             else
@@ -181,7 +182,7 @@ public class GameController : MonoBehaviour
                             //if they're the same value, slide tile at current index to checked row
                             if (gameBoard[r, col] == gameBoard[row, col])
                             {
-                                SlideTile((row, col), (r, col));
+                                MergeTile((row, col), (r, col));
                             }
                             //otherwise slide tile at current index to 1 before checked row
                             else
@@ -226,7 +227,7 @@ public class GameController : MonoBehaviour
                             //if they're the same value, slide tile at current index to checked column
                             if (gameBoard[row, c] == gameBoard[row, col])
                             {
-                                SlideTile((row, col), (row, c));
+                                MergeTile((row, col), (row, c));
                             }
                             //otherwise slide tile at current index to 1 before checked column
                             else
@@ -264,7 +265,7 @@ public class GameController : MonoBehaviour
                         {
                             if (gameBoard[r, col] == gameBoard[row, col])
                             {
-                                SlideTile((row, col), (r, col));
+                                MergeTile((row, col), (r, col));
                             }
                             else
                             {
@@ -290,8 +291,28 @@ public class GameController : MonoBehaviour
     void SlideTile((int row, int col) from, (int row, int col) to)
     {
         print(string.Format("sliding {0} to {1}", from, to));
+
         gameBoard[to.row, to.col] = gameBoard[from.row, from.col];
         gameBoard[from.row, from.col] = 0;
+
+        tiles[to.row, to.col] = tiles[from.row, from.col];
+        StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
+        tiles[from.row, from.col] = null;
+    }
+
+    void MergeTile((int row, int col) from, (int row, int col) to)
+    {
+        print(string.Format("merging {0} with {1}", from, to));
+
+        gameBoard[to.row, to.col] += gameBoard[from.row, from.col];
+        gameBoard[from.row, from.col] = 0;
+        
+        StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
+
+        tiles[from.row, from.col].GetComponent<Tile>().Shrink();
+        tiles[to.row, to.col].GetComponent<Tile>().Shrink();
+
+        SpawnTileAt((to.row, to.col), gameBoard[to.row, to.col]);
     }
 
     void UpdateGameBoardState(int[,] gameBoardState)

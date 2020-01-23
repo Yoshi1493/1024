@@ -17,6 +17,11 @@ public class Tile : MonoBehaviour
         rectTransform.anchoredPosition = BoardToWorldSpace(coordinate);
 
         //set value
+        SetValue(value);
+    }
+
+    public void SetValue(int value)
+    {
         valueDisplay.text = value.ToString();
         gameObject.SetActive(value != 0);
     }
@@ -42,8 +47,8 @@ public class Tile : MonoBehaviour
     public void Shrink()
     {
         anim.SetTrigger("Shrink");
+        Destroy(gameObject, SLIDE_ANIMATION_DURATION + anim.GetCurrentAnimatorStateInfo(0).length);
     }
-
 
     Vector2 BoardToWorldSpace((int row, int col) coordinate)
     {
