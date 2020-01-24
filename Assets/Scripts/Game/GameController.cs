@@ -370,8 +370,33 @@ public class GameController : MonoBehaviour
 
     public void Undo()
     {
-        //remove last gameBoardState from stack
-        //update gameBoard and tile displays to match lastGameBoardState
+        //remove last gameBoardState from stack and get a copy of it
+        int[,] lastGameBoardState = gameBoardStates.Pop();
+
+        //update current game state match elements in lastGameBoardState
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                if (gameBoard[row, col] != lastGameBoardState[row, col])
+                {
+                    //update scene display
+                    if (lastGameBoardState[row, col] == 0)
+                    {
+                        Destroy(tiles[row, col]);
+                    }
+                    else
+                    {
+                        SpawnTileAt((row, col), lastGameBoardState[row, col]);
+                    }
+
+                    //update internal array
+                    gameBoard[row, col] = lastGameBoardState[row, col];
+                }
+            }
+        }
+
+        hud.UpdateHUD();
     }
 
     #region DEBUG
