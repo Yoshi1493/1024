@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
 
     const int BOARD_SIZE = 4;
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
+    int[,] _gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
     GameObject[,] tiles = new GameObject[BOARD_SIZE, BOARD_SIZE];
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
 
@@ -22,8 +23,12 @@ public class GameController : MonoBehaviour
     {
         ResetGameState();
 
-        SpawnNewTile();
-        SpawnNewTile();
+        //SpawnNewTile();
+        //SpawnNewTile();
+        SpawnTileAt((0, 0), 2);
+        SpawnTileAt((0, 1), 2);
+        SpawnTileAt((0, 2), 2);
+        SpawnTileAt((0, 3), 2);
 
         //set initial game board state
         gameBoardStates.Push(gameBoard.Clone() as int[,]);
@@ -36,7 +41,6 @@ public class GameController : MonoBehaviour
         score = 0;
 
         gameBoardStates.Clear();
-        hud.UpdateHighscoreDisplay();
     }
 
     void SpawnNewTile()
@@ -94,6 +98,10 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
+            //save a copy of gameBoard
+            _gameBoard = gameBoard.Clone() as int[,];
+
+            //handle logic
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SlideRight();
@@ -111,7 +119,19 @@ public class GameController : MonoBehaviour
                 SlideDown();
             }
 
-            DebugGameBoard();
+            //if any gameBoard element was different before and after handling game logic
+            if (GameBoardIsDifferentFrom(_gameBoard))
+            {
+                //push the gameBoard copy onto the stack
+                gameBoardStates.Push(_gameBoard);
+
+                SpawnNewTile();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            DebugGameBoard(gameBoard);
         }
     }
 
@@ -140,7 +160,11 @@ public class GameController : MonoBehaviour
                             //otherwise slide tile at current index to 1 before checked column
                             else
                             {
-                                SlideTile((row, col), (row, c - 1));
+                                //but only if it needs to be slid
+                                if (col != c - 1)
+                                {
+                                    SlideTile((row, col), (row, c - 1));
+                                }
                             }
 
                             //break out of loop; no need to continue checking
@@ -187,7 +211,10 @@ public class GameController : MonoBehaviour
                             //otherwise slide tile at current index to 1 before checked row
                             else
                             {
-                                SlideTile((row, col), (r - 1, col));
+                                if (row != r - 1)
+                                {
+                                    SlideTile((row, col), (r - 1, col));
+                                }
                             }
 
                             break;
@@ -232,7 +259,10 @@ public class GameController : MonoBehaviour
                             //otherwise slide tile at current index to 1 before checked column
                             else
                             {
-                                SlideTile((row, col), (row, c + 1));
+                                if (col != c + 1)
+                                {
+                                    SlideTile((row, col), (row, c + 1));
+                                }
                             }
 
                             break;
@@ -269,7 +299,10 @@ public class GameController : MonoBehaviour
                             }
                             else
                             {
-                                SlideTile((row, col), (r + 1, col));
+                                if (row != r + 1)
+                                {
+                                    SlideTile((row, col), (r + 1, col));
+                                }
                             }
 
                             break;
@@ -306,7 +339,7 @@ public class GameController : MonoBehaviour
 
         gameBoard[to.row, to.col] += gameBoard[from.row, from.col];
         gameBoard[from.row, from.col] = 0;
-        
+
         StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
 
         tiles[from.row, from.col].GetComponent<Tile>().Shrink();
@@ -315,14 +348,20 @@ public class GameController : MonoBehaviour
         SpawnTileAt((to.row, to.col), gameBoard[to.row, to.col]);
     }
 
-    void UpdateGameBoardState(int[,] gameBoardState)
+    //compare gameBoard with gameBoardState, looking for any differences between them
+    bool GameBoardIsDifferentFrom(int[,] gameBoardState)
     {
-        //if valid move was made, save previous game state and spawn new tile
-    }
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                if (gameBoard[row, col] != gameBoardState[row, col])
+                {
+                    return true;
+                }
+            }
+        }
 
-    //return true if any item between gameBoard and most recent gameBoardState doesn't match
-    bool GameStateHasChanged(int[,] gameBoardState)
-    {
         return false;
     }
 
@@ -334,7 +373,7 @@ public class GameController : MonoBehaviour
 
     #region DEBUG
 
-    void DebugGameBoard()
+    void DebugGameBoard(int[,] board)
     {
         for (int row = BOARD_SIZE - 1; row >= 0; row--)
         {
@@ -342,7 +381,7 @@ public class GameController : MonoBehaviour
 
             for (int col = 0; col < BOARD_SIZE; col++)
             {
-                output += gameBoard[row, col];
+                output += board[row, col];
                 if (col < BOARD_SIZE - 1) { output += ", "; }
             }
 

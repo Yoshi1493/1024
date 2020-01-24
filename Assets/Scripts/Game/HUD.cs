@@ -10,6 +10,12 @@ public class HUD : Menu
     [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay;
     [SerializeField] Button undoButton, optionsButton, mainMenuButton;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        UpdateHighscoreDisplay();
+    }
+
     public void UpdateHUD()
     {
         UpdateScore();
@@ -33,7 +39,7 @@ public class HUD : Menu
         }
     }
 
-    public void UpdateHighscoreDisplay()
+    void UpdateHighscoreDisplay()
     {
         highscoreDisplay.text = highScore.ToString();
     }
