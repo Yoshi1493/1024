@@ -1648,7 +1648,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 1803823443}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1665965211}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -1926,6 +1926,31 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1647518525}
   m_CullTransparentMesh: 0
+--- !u!1 &1665965211 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7947083150706310207, guid: 4758a8fed0b79f048bae855e279ed4e5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1803823443}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1665965214
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665965211}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 96d282939d9de0e46a82d994dab909b4, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1699855371
 GameObject:
   m_ObjectHideFlags: 0
@@ -2122,6 +2147,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
+      propertyPath: m_Transition
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
+        type: 3}
       propertyPath: m_Interactable
       value: 0
       objectReference: {fileID: 0}
@@ -2178,7 +2208,27 @@ PrefabInstance:
     - target: {fileID: 7947083150559089346, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4286545791
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 7947083150706310202, guid: 4758a8fed0b79f048bae855e279ed4e5,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7947083150706310202, guid: 4758a8fed0b79f048bae855e279ed4e5,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7947083150706310202, guid: 4758a8fed0b79f048bae855e279ed4e5,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7947083150706310202, guid: 4758a8fed0b79f048bae855e279ed4e5,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4758a8fed0b79f048bae855e279ed4e5, type: 3}

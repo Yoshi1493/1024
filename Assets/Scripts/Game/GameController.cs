@@ -13,7 +13,6 @@ public class GameController : MonoBehaviour
 
     const int BOARD_SIZE = 4;
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
-    int[,] _gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
     GameObject[,] tiles = new GameObject[BOARD_SIZE, BOARD_SIZE];
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
 
@@ -25,8 +24,8 @@ public class GameController : MonoBehaviour
 
         //SpawnNewTile();
         //SpawnNewTile();
-        SpawnTileAt((0, 0), 2);
-        SpawnTileAt((0, 1), 2);
+        SpawnTileAt((0, 0), 8);
+        SpawnTileAt((0, 1), 4);
         SpawnTileAt((0, 2), 2);
         SpawnTileAt((0, 3), 2);
 
@@ -99,7 +98,7 @@ public class GameController : MonoBehaviour
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
             //save a copy of gameBoard
-            _gameBoard = gameBoard.Clone() as int[,];
+            int[,] _gameBoard = gameBoard.Clone() as int[,];
 
             //handle logic
             if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -126,6 +125,8 @@ public class GameController : MonoBehaviour
                 gameBoardStates.Push(_gameBoard);
 
                 SpawnNewTile();
+
+                hud.UpdateHUD();
             }
         }
 
@@ -339,6 +340,8 @@ public class GameController : MonoBehaviour
 
         gameBoard[to.row, to.col] += gameBoard[from.row, from.col];
         gameBoard[from.row, from.col] = 0;
+
+        score += gameBoard[to.row, to.col];
 
         StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
 

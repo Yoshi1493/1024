@@ -20,6 +20,8 @@ public class HUD : Menu
     {
         UpdateScore();
 
+        undoButton.interactable = gameBoardStates.Count > 1;
+
         if (gameOver)
         {
             optionsButton.gameObject.SetActive(false);
