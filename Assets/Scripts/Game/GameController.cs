@@ -18,10 +18,15 @@ public class GameController : MonoBehaviour
 
     public const float FOUR_SPAWN_CHANCE = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
 
-    void Start()
+    public void Start()
     {
-        ResetGameState();
+        //init. game state
+        inputEnabled = true;
+        gameOver = false;
+        score = 0;
+        hud.UpdateHUD();
 
+        gameBoardStates.Clear();
         SpawnNewTile();
         SpawnNewTile();
 
@@ -29,16 +34,7 @@ public class GameController : MonoBehaviour
         gameBoardStates.Push(gameBoard.Clone() as int[,]);
     }
 
-    void ResetGameState()
-    {
-        inputEnabled = true;
-        gameOver = false;
-        score = 0;
-
-        gameBoardStates.Clear();
-    }
-
-    void SpawnNewTile()
+    void SpawnNewTile(float spawnDelay = 0f)
     {
         //find coordinates of all empty spaces on game board by checking each index in gameBoard if it's 0
         emptySpaces.Clear();
@@ -60,25 +56,28 @@ public class GameController : MonoBehaviour
             (int row, int col) randEmptySpace = emptySpaces[Random.Range(0, emptySpaces.Count)];
             int tileValue = Random.value < FOUR_SPAWN_CHANCE ? 4 : 2;
 
-            SpawnTileAt(randEmptySpace, tileValue);
+            StartCoroutine(SpawnTileAt(randEmptySpace, tileValue, spawnDelay));
         }
         //otherwise game over
         else
         {
             gameOver = true;
+            print("game over.");
             hud.UpdateHUD();
         }
     }
 
-    void SpawnTileAt((int row, int col) coordinate, int value)
+    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay)
     {
+        //update respective gameBoard index
+        gameBoard[coordinate.row, coordinate.col] = value;
+
+        yield return new WaitForSeconds(spawnDelay);
+
         tiles[coordinate.row, coordinate.col] = Instantiate(tile, tileParent);
 
         //call Initialize to set its coordinate and value display
         tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
-
-        //update respective gameBoard index
-        gameBoard[coordinate.row, coordinate.col] = value;
     }
 
     void Update()
@@ -120,15 +119,10 @@ public class GameController : MonoBehaviour
                 //push the gameBoard copy onto the stack
                 gameBoardStates.Push(_gameBoard);
 
-                SpawnNewTile();
+                SpawnNewTile(SLIDE_ANIMATION_DURATION);
 
                 hud.UpdateHUD();
             }
-        }
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            DebugGameBoard(gameBoard);
         }
     }
 
@@ -359,10 +353,10 @@ public class GameController : MonoBehaviour
 
         StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
 
-        tiles[from.row, from.col].GetComponent<Tile>().Shrink();
-        tiles[to.row, to.col].GetComponent<Tile>().Shrink();
+        StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Shrink());
+        StartCoroutine(tiles[to.row, to.col].GetComponent<Tile>().Shrink());
 
-        SpawnTileAt((to.row, to.col), gameBoard[to.row, to.col]);
+        StartCoroutine(SpawnTileAt((to.row, to.col), gameBoard[to.row, to.col], SLIDE_ANIMATION_DURATION));
     }
 
     //compare gameBoard with gameBoardState, looking for any differences between them
@@ -382,7 +376,7 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    public void Undo()
+    /*public void Undo()
     {
         //remove last gameBoardState from stack and get a copy of it
         int[,] lastGameBoardState = gameBoardStates.Pop();
@@ -411,11 +405,11 @@ public class GameController : MonoBehaviour
         }
 
         hud.UpdateHUD();
-    }
+    }*/
 
     #region DEBUG
 
-    void DebugGameBoard(int[,] board)
+    void DebugBoard(int[,] board)
     {
         for (int row = BOARD_SIZE - 1; row >= 0; row--)
         {
@@ -431,11 +425,6 @@ public class GameController : MonoBehaviour
         }
 
         print('\n');
-    }
-
-    void PauseEditor()
-    {
-        UnityEditor.EditorApplication.isPaused = true;
     }
 
     #endregion

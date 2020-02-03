@@ -44,10 +44,14 @@ public class Tile : MonoBehaviour
         rectTransform.anchoredPosition = endPos;
     }
 
-    public void Shrink()
+    public IEnumerator Shrink()
     {
+        yield return new WaitForSeconds(SLIDE_ANIMATION_DURATION);
+
         anim.SetTrigger("Shrink");
-        Destroy(gameObject, SLIDE_ANIMATION_DURATION + anim.GetCurrentAnimatorStateInfo(0).length);
+        yield return new WaitUntil(() => rectTransform.localScale == Vector3.zero);
+
+        Destroy(gameObject);
     }
 
     Vector2 BoardToWorldSpace((int row, int col) coordinate)

@@ -130,12 +130,12 @@ PrefabInstance:
     - target: {fileID: 7947083150706310207, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_Name
-      value: Options (button)
+      value: Reset (button)
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310207, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
@@ -246,36 +246,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 304631826}
+      objectReference: {fileID: 1699855373}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DisplayOptionsMenu
+      value: Start
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Canvas, UnityEngine
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
-      objectReference: {fileID: 399508651}
+      objectReference: {fileID: 0}
     - target: {fileID: 7947083150559089348, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_Name
-      value: Options (TMP)
+      value: Reset (TMP)
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150559089346, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_textInfo.characterCount
-      value: 7
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150559089346, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
@@ -295,12 +295,12 @@ PrefabInstance:
     - target: {fileID: 7947083150559089346, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_text
-      value: Options
+      value: Reset
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150559089346, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_textInfo.spaceCount
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4758a8fed0b79f048bae855e279ed4e5, type: 3}
@@ -2013,7 +2013,7 @@ PrefabInstance:
     - target: {fileID: 7947083150706310207, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
