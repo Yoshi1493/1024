@@ -22,12 +22,8 @@ public class GameController : MonoBehaviour
     {
         ResetGameState();
 
-        //SpawnNewTile();
-        //SpawnNewTile();
-        SpawnTileAt((0, 0), 8);
-        SpawnTileAt((0, 1), 4);
-        SpawnTileAt((0, 2), 2);
-        SpawnTileAt((0, 3), 2);
+        SpawnNewTile();
+        SpawnNewTile();
 
         //set initial game board state
         gameBoardStates.Push(gameBoard.Clone() as int[,]);
@@ -157,6 +153,15 @@ public class GameController : MonoBehaviour
                             if (gameBoard[row, c] == gameBoard[row, col])
                             {
                                 MergeTile((row, col), (row, c));
+
+                                //slide all tiles to the left of the current tile 1 column right
+                                for (int i = c - 1; i >= 0; i--)
+                                {
+                                    if (gameBoard[row, i] != 0)
+                                    {
+                                        SlideTile((row, i), (row, i + 1));
+                                    }
+                                }
                             }
                             //otherwise slide tile at current index to 1 before checked column
                             else
@@ -189,27 +194,28 @@ public class GameController : MonoBehaviour
 
     public void SlideUp()
     {
-        //for each column
         for (int col = 0; col < BOARD_SIZE; col++)
         {
-            //for each row except the topmost one, looping top to bottom
             for (int row = BOARD_SIZE - 2; row >= 0; row--)
             {
-                //if game board at current index has a tile on it, slide it as farm up as possible
                 if (gameBoard[row, col] != 0)
                 {
-                    //loop from [1 above current row] to [topmost row], looking for the first non-empty index
                     for (int r = row + 1; r < BOARD_SIZE; r++)
                     {
-                        //if game board at checked row has a tile on it, check if it has the same value as current row
                         if (gameBoard[r, col] != 0)
                         {
-                            //if they're the same value, slide tile at current index to checked row
                             if (gameBoard[r, col] == gameBoard[row, col])
                             {
                                 MergeTile((row, col), (r, col));
+
+                                for (int i = r - 1; i >= 0; i--)
+                                {
+                                    if (gameBoard[i, col] != 0)
+                                    {
+                                        SlideTile((i, col), (i + 1, col));
+                                    }
+                                }
                             }
-                            //otherwise slide tile at current index to 1 before checked row
                             else
                             {
                                 if (row != r - 1)
@@ -220,10 +226,8 @@ public class GameController : MonoBehaviour
 
                             break;
                         }
-                        //otherwise (if game board at checked row is empty)
                         else
                         {
-                            //also if checked row is the topmost row
                             if (r == BOARD_SIZE - 1)
                             {
                                 SlideTile((row, col), (r, col));
@@ -240,24 +244,26 @@ public class GameController : MonoBehaviour
     {
         for (int row = 0; row < BOARD_SIZE; row++)
         {
-            //for each column except the leftmost one, looping left to right
             for (int col = 1; col < BOARD_SIZE; col++)
             {
-                //if game board at current index has a tile on it, slide it as far left as possible
                 if (gameBoard[row, col] != 0)
                 {
-                    //loop from [1 column to the left of the current column] to [leftmost column], looking for the first non-empty index
                     for (int c = col - 1; c >= 0; c--)
                     {
-                        //if game board at checked column has a tile on it, check if it has the same value as current column
                         if (gameBoard[row, c] != 0)
                         {
-                            //if they're the same value, slide tile at current index to checked column
                             if (gameBoard[row, c] == gameBoard[row, col])
                             {
                                 MergeTile((row, col), (row, c));
+
+                                for (int i = c + 1; i < BOARD_SIZE; i++)
+                                {
+                                    if (gameBoard[row, i] != 0)
+                                    {
+                                        SlideTile((row, i), (row, i - 1));
+                                    }
+                                }
                             }
-                            //otherwise slide tile at current index to 1 before checked column
                             else
                             {
                                 if (col != c + 1)
@@ -297,6 +303,14 @@ public class GameController : MonoBehaviour
                             if (gameBoard[r, col] == gameBoard[row, col])
                             {
                                 MergeTile((row, col), (r, col));
+
+                                for (int i = r + 1; i < BOARD_SIZE; i++)
+                                {
+                                    if (gameBoard[i, col] != 0)
+                                    {
+                                        SlideTile((i, col), (i - 1, col));
+                                    }
+                                }
                             }
                             else
                             {
