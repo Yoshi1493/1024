@@ -5,14 +5,13 @@ using UnityEngine.UI;
 using TMPro;
 using static Globals;
 
-public class HUD : Menu
+public class HUD : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay;
     [SerializeField] Button undoButton, optionsButton, mainMenuButton;
 
-    protected override void Awake()
+    void Awake()
     {
-        base.Awake();
         UpdateHighscoreDisplay();
     }
 
@@ -44,15 +43,5 @@ public class HUD : Menu
     void UpdateHighscoreDisplay()
     {
         highscoreDisplay.text = highScore.ToString();
-    }
-
-    public void DisplayOptionsMenu(Canvas optionsMenu)
-    {
-        OpenMenu(optionsMenu);
-    }
-
-    public void HideOptionsMenu(Canvas optionsMenu)
-    {
-        CloseMenu(optionsMenu);
     }
 }

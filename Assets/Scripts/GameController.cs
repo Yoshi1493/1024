@@ -7,7 +7,6 @@ using static Globals;
 public class GameController : MonoBehaviour
 {
     [SerializeField] HUD hud;
-    [SerializeField] AudioController audioController;
     [SerializeField] GameObject tile;
     [SerializeField] Transform tileParent;
 
