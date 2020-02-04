@@ -6,31 +6,59 @@ using static Globals;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] HUD hud;
     [SerializeField] GameObject tile;
     [SerializeField] Transform tileParent;
+    [SerializeField] InputHandler inputHandler;
 
     const int BOARD_SIZE = 4;
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
     GameObject[,] tiles = new GameObject[BOARD_SIZE, BOARD_SIZE];
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
-
     public const float FOUR_SPAWN_CHANCE = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
+
+    public static Stack<int[,]> previousBoardStates = new Stack<int[,]>();
+
+    int score;
+    public event System.Action<int> ScoreChangeAction;
+    public event System.Action<bool> GameStateChangeAction;
+    public event System.Action GameOverAction;
 
     public void Start()
     {
-        //init. game state
-        inputEnabled = true;
-        gameOver = false;
-        score = 0;
-        hud.UpdateHUD();
+        RestartGame();
+    }
 
-        gameBoardStates.Clear();
+    void RestartGame()
+    {
+        foreach(Transform tile in tileParent.transform)
+        {
+            Destroy(tile.gameObject);
+        }
+
+        //init. game state
+        UpdateScore(0);
+
+        previousBoardStates.Clear();
         SpawnNewTile();
         SpawnNewTile();
 
         //set initial game board state
-        gameBoardStates.Push(gameBoard.Clone() as int[,]);
+        previousBoardStates.Push(gameBoard.Clone() as int[,]);
+
+        inputHandler.enabled = true;
+    }
+
+    void UpdateScore(int value)
+    {
+        score = value;
+        ScoreChangeAction?.Invoke(value);
+    }
+
+    void LoseGame()
+    {
+        GameOverAction?.Invoke();
+
+        inputHandler.enabled = false;
     }
 
     void SpawnNewTile(float spawnDelay = 0f)
@@ -60,9 +88,8 @@ public class GameController : MonoBehaviour
         //otherwise game over
         else
         {
-            gameOver = true;
             print("game over.");
-            hud.UpdateHUD();
+            LoseGame();
         }
     }
 
@@ -81,10 +108,7 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        if (!gameOver && inputEnabled)
-        {
-            GetKeyInput();
-        }
+        GetKeyInput();
     }
 
     void GetKeyInput()
@@ -116,11 +140,11 @@ public class GameController : MonoBehaviour
             if (GameBoardIsDifferentFrom(_gameBoard))
             {
                 //push the gameBoard copy onto the stack
-                gameBoardStates.Push(_gameBoard);
+                previousBoardStates.Push(_gameBoard);
 
                 SpawnNewTile(SLIDE_ANIMATION_DURATION);
 
-                hud.UpdateHUD();
+                GameStateChangeAction?.Invoke(previousBoardStates.Count > 1);
             }
         }
     }
@@ -348,7 +372,7 @@ public class GameController : MonoBehaviour
         gameBoard[to.row, to.col] += gameBoard[from.row, from.col];
         gameBoard[from.row, from.col] = 0;
 
-        score += gameBoard[to.row, to.col];
+        UpdateScore(score += gameBoard[to.row, to.col]);
 
         StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
 
