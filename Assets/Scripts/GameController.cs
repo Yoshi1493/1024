@@ -8,7 +8,6 @@ public class GameController : MonoBehaviour
 {
     [SerializeField] GameObject tile;
     [SerializeField] Transform tileParent;
-    [SerializeField] InputHandler inputHandler;
 
     const int BOARD_SIZE = 4;
     int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
@@ -30,10 +29,7 @@ public class GameController : MonoBehaviour
 
     void RestartGame()
     {
-        foreach(Transform tile in tileParent.transform)
-        {
-            Destroy(tile.gameObject);
-        }
+        ResetGameBoard();
 
         //init. game state
         UpdateScore(0);
@@ -44,21 +40,28 @@ public class GameController : MonoBehaviour
 
         //set initial game board state
         previousBoardStates.Push(gameBoard.Clone() as int[,]);
+    }
 
-        inputHandler.enabled = true;
+    void ResetGameBoard()
+    {
+        foreach (Transform tile in tileParent.transform)
+        {
+            Destroy(tile.gameObject);
+        }
+
+        for (int row = 0; row < BOARD_SIZE; row++)
+        {
+            for (int col = 0; col < BOARD_SIZE; col++)
+            {
+                gameBoard[row, col] = 0;
+            }
+        }
     }
 
     void UpdateScore(int value)
     {
         score = value;
         ScoreChangeAction?.Invoke(value);
-    }
-
-    void LoseGame()
-    {
-        GameOverAction?.Invoke();
-
-        inputHandler.enabled = false;
     }
 
     void SpawnNewTile(float spawnDelay = 0f)
@@ -89,11 +92,11 @@ public class GameController : MonoBehaviour
         else
         {
             print("game over.");
-            LoseGame();
+            GameOverAction?.Invoke();
         }
     }
 
-    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay)
+    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay = 0f)
     {
         //update respective gameBoard index
         gameBoard[coordinate.row, coordinate.col] = value;
@@ -171,12 +174,12 @@ public class GameController : MonoBehaviour
                             {
                                 MergeTile((row, col), (row, c));
 
-                                //slide all tiles to the left of the current tile 1 column right
+                                //slide all tiles that are left of the current tile to the right a number of columns equal to how many columns the current tile has moved
                                 for (int i = c - 1; i >= 0; i--)
                                 {
                                     if (gameBoard[row, i] != 0)
                                     {
-                                        SlideTile((row, i), (row, i + 1));
+                                        SlideTile((row, i), (row, i + c - col));
                                     }
                                 }
                             }
@@ -229,7 +232,7 @@ public class GameController : MonoBehaviour
                                 {
                                     if (gameBoard[i, col] != 0)
                                     {
-                                        SlideTile((i, col), (i + 1, col));
+                                        SlideTile((i, col), (i + r - row, col));
                                     }
                                 }
                             }
@@ -277,7 +280,7 @@ public class GameController : MonoBehaviour
                                 {
                                     if (gameBoard[row, i] != 0)
                                     {
-                                        SlideTile((row, i), (row, i - 1));
+                                        SlideTile((row, i), (row, i - c - col));
                                     }
                                 }
                             }
@@ -325,7 +328,7 @@ public class GameController : MonoBehaviour
                                 {
                                     if (gameBoard[i, col] != 0)
                                     {
-                                        SlideTile((i, col), (i - 1, col));
+                                        SlideTile((i, col), (i - r - row, col));
                                     }
                                 }
                             }
@@ -399,36 +402,28 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    /*public void Undo()
+    public void Undo()
     {
+        ResetGameBoard();
+
         //remove last gameBoardState from stack and get a copy of it
-        int[,] lastGameBoardState = gameBoardStates.Pop();
+        int[,] lastBoardState = previousBoardStates.Pop();
 
         //update current game state match elements in lastGameBoardState
         for (int row = 0; row < BOARD_SIZE; row++)
         {
             for (int col = 0; col < BOARD_SIZE; col++)
             {
-                if (gameBoard[row, col] != lastGameBoardState[row, col])
+                if (lastBoardState[row, col] != 0)
                 {
-                    //update scene display
-                    if (lastGameBoardState[row, col] == 0)
-                    {
-                        Destroy(tiles[row, col]);
-                    }
-                    else
-                    {
-                        SpawnTileAt((row, col), lastGameBoardState[row, col]);
-                    }
-
-                    //update internal array
-                    gameBoard[row, col] = lastGameBoardState[row, col];
+                    StartCoroutine(SpawnTileAt((row, col), lastBoardState[row, col]));
+                    gameBoard[row, col] = lastBoardState[row, col];
                 }
             }
         }
 
-        hud.UpdateHUD();
-    }*/
+        GameStateChangeAction?.Invoke(previousBoardStates.Count > 1);
+    }
 
     #region DEBUG
 

@@ -1680,7 +1680,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tile: {fileID: 645747021707086572, guid: 3184b1eb27011dc4196e7a99732158c0, type: 3}
   tileParent: {fileID: 193538212}
-  inputHandler: {fileID: 1699855374}
 --- !u!114 &1699855374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1708,7 +1707,7 @@ PrefabInstance:
     - target: {fileID: 7947083150706310207, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
