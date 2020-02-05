@@ -11,13 +11,16 @@ public class Tile : MonoBehaviour
     [SerializeField] TextMeshProUGUI valueDisplay;
     [SerializeField] RectTransform rectTransform;
 
-    public void Initialize((int row, int col) coordinate, int value)
+    public void Initialize((int row, int col) coordinate, int value, bool animatorEnabled)
     {
         //set anchored position
         rectTransform.anchoredPosition = BoardToWorldSpace(coordinate);
 
         //set value
         SetValue(value);
+
+        //enable/disable animator
+        anim.enabled = animatorEnabled;
     }
 
     public void SetValue(int value)
@@ -44,10 +47,11 @@ public class Tile : MonoBehaviour
         rectTransform.anchoredPosition = endPos;
     }
 
-    public IEnumerator Shrink()
+    public IEnumerator Shrink(float initialDelay = SLIDE_ANIMATION_DURATION)
     {
-        yield return new WaitForSeconds(SLIDE_ANIMATION_DURATION);
+        yield return new WaitForSeconds(initialDelay);
 
+        anim.enabled = true;
         anim.SetTrigger("Shrink");
         yield return new WaitUntil(() => rectTransform.localScale == Vector3.zero);
 

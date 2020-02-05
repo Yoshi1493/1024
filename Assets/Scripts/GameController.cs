@@ -15,15 +15,16 @@ public class GameController : MonoBehaviour
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
     public const float FOUR_SPAWN_CHANCE = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
 
-    public static Stack<int[,]> previousBoardStates = new Stack<int[,]>();
+    public static Stack<(int[,] boardState, int score)> previousGameStates = new Stack<(int[,], int)>();
 
     int score;
     public event System.Action<int> ScoreChangeAction;
     public event System.Action<bool> GameStateChangeAction;
 
+    //public because the Reset button calls this
     public void Start()
     {
-        RestartGame(); 
+        RestartGame();
     }
 
     void RestartGame()
@@ -33,12 +34,12 @@ public class GameController : MonoBehaviour
         //init. game state
         UpdateScore(0);
 
-        previousBoardStates.Clear();
+        previousGameStates.Clear();
         SpawnNewTile();
         SpawnNewTile();
 
         //set initial game board state
-        previousBoardStates.Push(gameBoard.Clone() as int[,]);
+        previousGameStates.Push((gameBoard.Clone() as int[,], 0));
     }
 
     void ResetGameBoard()
@@ -95,7 +96,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay = 0f)
+    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay = 0f, bool animatorEnabled = true)
     {
         //update respective gameBoard index
         gameBoard[coordinate.row, coordinate.col] = value;
@@ -105,7 +106,7 @@ public class GameController : MonoBehaviour
         tiles[coordinate.row, coordinate.col] = Instantiate(tile, tileParent);
 
         //call Initialize to set its coordinate and value display
-        tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
+        tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value, animatorEnabled);
     }
 
     void Update()
@@ -117,8 +118,8 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
-            //save a copy of gameBoard
-            int[,] _gameBoard = gameBoard.Clone() as int[,];
+            //cache the current game state
+            (int[,] boardState, int score) _gameState = (gameBoard.Clone() as int[,], score);
 
             //handle logic
             if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -139,14 +140,14 @@ public class GameController : MonoBehaviour
             }
 
             //if any gameBoard element was different before and after handling game logic
-            if (GameBoardIsDifferentFrom(_gameBoard))
+            if (GameBoardIsDifferentFrom(_gameState.boardState))
             {
-                //push the gameBoard copy onto the stack
-                previousBoardStates.Push(_gameBoard);
+                //push the game state onto the stack
+                previousGameStates.Push(_gameState);
 
                 SpawnNewTile(SLIDE_ANIMATION_DURATION);
 
-                GameStateChangeAction?.Invoke(previousBoardStates.Count > 1);
+                GameStateChangeAction?.Invoke(previousGameStates.Count > 1);
             }
         }
     }
@@ -406,22 +407,23 @@ public class GameController : MonoBehaviour
         ResetGameBoard();
 
         //remove last gameBoardState from stack and get a copy of it
-        int[,] lastBoardState = previousBoardStates.Pop();
+        var lastGameState = previousGameStates.Pop();
 
         //update current game state match elements in lastGameBoardState
         for (int row = 0; row < BOARD_SIZE; row++)
         {
             for (int col = 0; col < BOARD_SIZE; col++)
             {
-                if (lastBoardState[row, col] != 0)
+                if (lastGameState.boardState[row, col] != 0)
                 {
-                    StartCoroutine(SpawnTileAt((row, col), lastBoardState[row, col]));
-                    gameBoard[row, col] = lastBoardState[row, col];
+                    StartCoroutine(SpawnTileAt((row, col), lastGameState.boardState[row, col], animatorEnabled: false));
+                    gameBoard[row, col] = lastGameState.boardState[row, col];
                 }
             }
         }
 
-        GameStateChangeAction?.Invoke(previousBoardStates.Count > 1);
+        UpdateScore(lastGameState.score);
+        GameStateChangeAction?.Invoke(previousGameStates.Count > 1);
     }
 
     #region DEBUG
