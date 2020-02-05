@@ -20,11 +20,10 @@ public class GameController : MonoBehaviour
     int score;
     public event System.Action<int> ScoreChangeAction;
     public event System.Action<bool> GameStateChangeAction;
-    public event System.Action GameOverAction;
 
     public void Start()
     {
-        RestartGame();
+        RestartGame(); 
     }
 
     void RestartGame()
@@ -92,7 +91,7 @@ public class GameController : MonoBehaviour
         else
         {
             print("game over.");
-            GameOverAction?.Invoke();
+            GameStateChangeAction?.Invoke(false);
         }
     }
 
@@ -160,16 +159,16 @@ public class GameController : MonoBehaviour
             //for each column except the rightmost one, looping right to left
             for (int col = BOARD_SIZE - 2; col >= 0; col--)
             {
-                //if game board at current index has a tile on it, slide it as far right as possible
+                //if current cell has a tile on it, slide it as far right as possible
                 if (gameBoard[row, col] != 0)
                 {
                     //loop from [1 column to the right of the current column] to [rightmost column], looking for the first non-empty index
                     for (int c = col + 1; c < BOARD_SIZE; c++)
                     {
-                        //if game board at checked column has a tile on it, check if it has the same value as current column 
+                        //if the column being checked has a tile on it, check if it has the same value as current cell's tile 
                         if (gameBoard[row, c] != 0)
                         {
-                            //if they're the same value, slide tile at current index to checked column
+                            //if they're the same value, slide current tile to checked column
                             if (gameBoard[row, c] == gameBoard[row, col])
                             {
                                 MergeTile((row, col), (row, c));
@@ -183,7 +182,7 @@ public class GameController : MonoBehaviour
                                     }
                                 }
                             }
-                            //otherwise slide tile at current index to 1 before checked column
+                            //otherwise slide current tile to 1 column left of the current column
                             else
                             {
                                 //but only if it needs to be slid
@@ -193,7 +192,7 @@ public class GameController : MonoBehaviour
                                 }
                             }
 
-                            //break out of loop; no need to continue checking
+                            //no need to continue checking
                             break;
                         }
                         //otherwise (if game board at checked column is empty)

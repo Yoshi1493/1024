@@ -36,9 +36,4 @@ public class HUD : MonoBehaviour
     {
         undoButton.interactable = state;
     }
-
-    void OnGameOver()
-    {
-        SetUndoButtonState(false);
-    }
 }
