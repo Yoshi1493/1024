@@ -885,6 +885,7 @@ MonoBehaviour:
   scoreDisplay: {fileID: 1647518528}
   highscoreDisplay: {fileID: 466001185}
   gameOverDisplay: {fileID: 0}
+  undoButton: {fileID: 1665965212}
 --- !u!114 &304631827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1819,6 +1820,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1803823443}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1665965212 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1803823443}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665965211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!95 &1665965214
 Animator:
   serializedVersion: 3
@@ -1848,7 +1861,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1699855372}
   - component: {fileID: 1699855373}
-  - component: {fileID: 1699855374}
   m_Layer: 0
   m_Name: Game Controller
   m_TagString: GameController
@@ -1883,19 +1895,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tile: {fileID: 645747021707086572, guid: 3184b1eb27011dc4196e7a99732158c0, type: 3}
+  tileVariant: {fileID: 2404955578749703038, guid: e1382ffaa23d9ab4c81ff8668fcb18c1,
+    type: 3}
   tileParent: {fileID: 193538212}
---- !u!114 &1699855374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1699855371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f37064d39f09e53419b5c4a7f33fc08f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1803823443
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2042,6 +2044,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Transition
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}

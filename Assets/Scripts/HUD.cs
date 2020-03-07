@@ -1,10 +1,13 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class HUD : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay, gameOverDisplay;
+    [Space]
+    [SerializeField] Button undoButton;
 
     int highScore;
 
@@ -14,6 +17,7 @@ public class HUD : MonoBehaviour
     {
         GameController gc = FindObjectOfType<GameController>();
         gc.ScoreChangedAction += SetScore;
+        gc.GameStateChangedAction += SetUndoButtonState;
         gc.GameOverAction += OnGameOver;
 
         highScore = PlayerPrefs.GetInt("highScore");
@@ -32,6 +36,11 @@ public class HUD : MonoBehaviour
             highscoreDisplay.text = highScore.ToString();
             PlayerPrefs.SetInt("highScore", highScore);
         }
+    }
+
+    void SetUndoButtonState(bool state)
+    {
+        undoButton.interactable = state;
     }
 
     void OnGameOver()

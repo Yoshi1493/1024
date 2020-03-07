@@ -5,7 +5,19 @@ using static Globals;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] GameObject tile;
+    struct GameState
+    {
+        public int[,] gameBoard;
+        public int score;
+
+        public GameState(int[,] _gameBoard, int _score)
+        {
+            gameBoard = _gameBoard;
+            score = _score;
+        }
+    }
+
+    [SerializeField] GameObject tile, tileVariant;
     [SerializeField] Transform tileParent;
 
     const int BoardSize = 4;
@@ -15,12 +27,19 @@ public class GameController : MonoBehaviour
     List<(int row, int col)> emptySpaces = new List<(int, int)>(BoardSize * BoardSize - 1);
     public const float FourSpawnChance = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
 
-    int[,] previousGameStates = new int[BoardSize, BoardSize];
+    Stack<GameState> previousGameStates = new Stack<GameState>();
+
+    public event System.Action<int> ScoreChangedAction;
+    public event System.Action<bool> GameStateChangedAction;
+    public event System.Action GameOverAction;
 
     int score;
 
-    public event System.Action<int> ScoreChangedAction;
-    public event System.Action GameOverAction;
+    void SetScore(int value)
+    {
+        score = value;
+        ScoreChangedAction.Invoke(value);
+    }
 
     void Awake()
     {
@@ -31,12 +50,8 @@ public class GameController : MonoBehaviour
     {
         SpawnNewTile();
         SpawnNewTile();
-    }
 
-    void SetScore(int value)
-    {
-        score = value;
-        ScoreChangedAction?.Invoke(value);
+        previousGameStates.Push(new GameState(gameBoard.Clone() as int[,], 0));
     }
 
     void SpawnNewTile(float spawnDelay = 0f)
@@ -66,7 +81,7 @@ public class GameController : MonoBehaviour
         //otherwise game over
         else
         {
-            GameOverAction?.Invoke();
+            GameOverAction.Invoke();
         }
     }
 
@@ -77,9 +92,17 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds(spawnDelay);
 
+        //spawn tile
         tiles[coordinate.row, coordinate.col] = Instantiate(tile, tileParent);
 
         //call Initialize to set its coordinate and value display
+        tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
+    }
+
+    void SpawnOldTileAt((int row, int col) coordinate, int value)
+    {
+        gameBoard[coordinate.row, coordinate.col] = value;
+        tiles[coordinate.row, coordinate.col] = Instantiate(tileVariant, tileParent);
         tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
     }
 
@@ -93,9 +116,9 @@ public class GameController : MonoBehaviour
         if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
         {
             //cache the current game state
-            (int[,] boardState, int score) _gameState = (gameBoard.Clone() as int[,], score);
+            GameState currentGameState = new GameState(gameBoard.Clone() as int[,], score);
 
-            //handle logic
+            //slide in direction based on key pressed
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SlideRight();
@@ -114,14 +137,21 @@ public class GameController : MonoBehaviour
             }
 
             //if any gameBoard element was different before and after handling game logic
-            if (GameBoardIsDifferentFrom(_gameState.boardState))
+            if (GameBoardIsDifferentFrom(currentGameState.gameBoard))
             {
+                //push onto stack of previous game states
+                previousGameStates.Push(currentGameState);
+
+                //enable the undo button
+                GameStateChangedAction.Invoke(true);
+
+                //spawn new tile after sliding animation finishes
                 SpawnNewTile(SlideAnimationDuration);
             }
         }
     }
 
-    public void SlideRight()
+    void SlideRight()
     {
         //for each row
         for (int row = 0; row < BoardSize; row++)
@@ -181,7 +211,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void SlideUp()
+    void SlideUp()
     {
         for (int col = 0; col < BoardSize; col++)
         {
@@ -229,7 +259,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void SlideLeft()
+    void SlideLeft()
     {
         for (int row = 0; row < BoardSize; row++)
         {
@@ -277,7 +307,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void SlideDown()
+    void SlideDown()
     {
         for (int col = 0; col < BoardSize; col++)
         {
@@ -369,6 +399,50 @@ public class GameController : MonoBehaviour
 
     void Undo()
     {
+        //pop out most recent game state from stack
+        GameState mostRecentGameState = previousGameStates.Pop();
 
+        PrintBoard(tiles);
+
+        //update current game state match elements in lastGameBoardState
+        for (int row = 0; row < BoardSize; row++)
+        {
+            for (int col = 0; col < BoardSize; col++)
+            {
+                if (tiles[row, col] != null)
+                {
+                    gameBoard[row, col] = 0;
+                    Destroy(tiles[row, col]);
+                }
+
+                if (mostRecentGameState.gameBoard[row, col] != 0)
+                {
+                    SpawnOldTileAt((row, col), mostRecentGameState.gameBoard[row, col]);
+                }
+            }
+        }
+
+        PrintBoard(tiles);
+
+        //update score
+        SetScore(mostRecentGameState.score);
+
+        //enable undo button depending on whether or not previous game states exist
+        GameStateChangedAction.Invoke(previousGameStates.Count > 1);
+    }
+
+    void PrintBoard<T>(T[,] arr)
+    {
+        for (int row = BoardSize - 1; row >= 0; row--)
+        {
+            string output = "";
+            for (int col = 0; col < BoardSize; col++)
+            {
+                output += arr[row, col];
+                if (col < BoardSize - 1) { output += ", "; }
+            }
+            print(output);
+        }
+        print('\n');
     }
 }
