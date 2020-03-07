@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using TMPro;
 
 public class HUD : MonoBehaviour
@@ -6,6 +7,8 @@ public class HUD : MonoBehaviour
     [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay, gameOverDisplay;
 
     int highScore;
+
+    public event Action UndoAction;
 
     void Awake()
     {
@@ -34,6 +37,16 @@ public class HUD : MonoBehaviour
     void OnGameOver()
     {
         gameOverDisplay.enabled = true;
+    }
+
+    public void OnSelectUndo()
+    {
+        UndoAction.Invoke();
+    }
+
+    public void OnSelectReset()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
     }
 
     public void OnSelectQuit()

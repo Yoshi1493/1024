@@ -22,6 +22,11 @@ public class GameController : MonoBehaviour
     public event System.Action<int> ScoreChangedAction;
     public event System.Action GameOverAction;
 
+    void Awake()
+    {
+        FindObjectOfType<HUD>().UndoAction += Undo;
+    }
+
     void Start()
     {
         SpawnNewTile();
@@ -362,8 +367,8 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    public void ResetGame()
+    void Undo()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+
     }
 }

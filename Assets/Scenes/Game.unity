@@ -175,7 +175,7 @@ PrefabInstance:
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
@@ -390,7 +390,7 @@ PrefabInstance:
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
@@ -461,11 +461,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1699855373}
+      objectReference: {fileID: 304631826}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ResetGame
+      value: OnSelectReset
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
@@ -959,8 +959,8 @@ RectTransform:
   - {fileID: 1166073388}
   - {fileID: 174558990}
   - {fileID: 1803823444}
-  - {fileID: 19364434}
   - {fileID: 63268436}
+  - {fileID: 19364434}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1908,11 +1908,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Undo (button)
       objectReference: {fileID: 0}
-    - target: {fileID: 7947083150706310207, guid: 4758a8fed0b79f048bae855e279ed4e5,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310204, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2022,11 +2017,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1699855373}
+      objectReference: {fileID: 304631826}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Undo
+      value: OnSelectUndo
       objectReference: {fileID: 0}
     - target: {fileID: 7947083150706310205, guid: 4758a8fed0b79f048bae855e279ed4e5,
         type: 3}
