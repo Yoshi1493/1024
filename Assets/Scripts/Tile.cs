@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using static Globals;
@@ -11,16 +10,15 @@ public class Tile : MonoBehaviour
     [SerializeField] TextMeshProUGUI valueDisplay;
     [SerializeField] RectTransform rectTransform;
 
-    public void Initialize((int row, int col) coordinate, int value, bool animatorEnabled)
+    const int TileSize = 180;   //game tile width & height (px)
+
+    public void Initialize((int row, int col) coordinate, int value)
     {
         //set anchored position
         rectTransform.anchoredPosition = BoardToWorldSpace(coordinate);
 
         //set value
         SetValue(value);
-
-        //enable/disable animator
-        anim.enabled = animatorEnabled;
     }
 
     public void SetValue(int value)
@@ -35,9 +33,9 @@ public class Tile : MonoBehaviour
         Vector2 endPos = BoardToWorldSpace(end);
 
         float currentLerpTime = 0f;
-        while (currentLerpTime < SLIDE_ANIMATION_DURATION)
+        while (currentLerpTime < SlideAnimationDuration)
         {
-            float t = currentLerpTime / SLIDE_ANIMATION_DURATION;
+            float t = currentLerpTime / SlideAnimationDuration;
             rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, slideAnimationCurve.Evaluate(t));
 
             yield return new WaitForEndOfFrame();
@@ -47,7 +45,7 @@ public class Tile : MonoBehaviour
         rectTransform.anchoredPosition = endPos;
     }
 
-    public IEnumerator Shrink(float initialDelay = SLIDE_ANIMATION_DURATION)
+    public IEnumerator Shrink(float initialDelay = SlideAnimationDuration)
     {
         yield return new WaitForSeconds(initialDelay);
 
@@ -61,8 +59,8 @@ public class Tile : MonoBehaviour
     Vector2 BoardToWorldSpace((int row, int col) coordinate)
     {
         Vector2 result;
-        result.x = coordinate.col * TILE_SIZE - (TILE_SIZE * 1.5f);
-        result.y = coordinate.row * TILE_SIZE - (TILE_SIZE * 1.5f);
+        result.x = coordinate.col * TileSize - (TileSize * 1.5f);
+        result.y = coordinate.row * TileSize - (TileSize * 1.5f);
 
         return result;
     }

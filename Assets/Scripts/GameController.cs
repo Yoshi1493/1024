@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static Globals;
 
@@ -9,59 +8,30 @@ public class GameController : MonoBehaviour
     [SerializeField] GameObject tile;
     [SerializeField] Transform tileParent;
 
-    const int BOARD_SIZE = 4;
-    int[,] gameBoard = new int[BOARD_SIZE, BOARD_SIZE];
-    GameObject[,] tiles = new GameObject[BOARD_SIZE, BOARD_SIZE];
-    List<(int row, int col)> emptySpaces = new List<(int, int)>(BOARD_SIZE * BOARD_SIZE - 1);
-    public const float FOUR_SPAWN_CHANCE = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
+    const int BoardSize = 4;
+    int[,] gameBoard = new int[BoardSize, BoardSize];
+    GameObject[,] tiles = new GameObject[BoardSize, BoardSize];
 
-    public static Stack<(int[,] boardState, int score)> previousGameStates = new Stack<(int[,], int)>();
+    List<(int row, int col)> emptySpaces = new List<(int, int)>(BoardSize * BoardSize - 1);
+    public const float FourSpawnChance = 0.10f;           //10% chance for a new tile's value to be 4 instead of 2
+
+    int[,] previousGameStates = new int[BoardSize, BoardSize];
 
     int score;
-    public event System.Action<int> ScoreChangeAction;
-    public event System.Action<bool> GameStateChangeAction;
 
-    //public because the Reset button calls this
-    public void Start()
+    public event System.Action<int> ScoreChangedAction;
+    public event System.Action GameOverAction;
+
+    void Start()
     {
-        RestartGame();
-    }
-
-    void RestartGame()
-    {
-        ResetGameBoard();
-
-        //init. game state
-        UpdateScore(0);
-
-        previousGameStates.Clear();
         SpawnNewTile();
         SpawnNewTile();
-
-        //set initial game board state
-        previousGameStates.Push((gameBoard.Clone() as int[,], 0));
     }
 
-    void ResetGameBoard()
-    {
-        foreach (Transform tile in tileParent.transform)
-        {
-            Destroy(tile.gameObject);
-        }
-
-        for (int row = 0; row < BOARD_SIZE; row++)
-        {
-            for (int col = 0; col < BOARD_SIZE; col++)
-            {
-                gameBoard[row, col] = 0;
-            }
-        }
-    }
-
-    void UpdateScore(int value)
+    void SetScore(int value)
     {
         score = value;
-        ScoreChangeAction?.Invoke(value);
+        ScoreChangedAction?.Invoke(value);
     }
 
     void SpawnNewTile(float spawnDelay = 0f)
@@ -69,9 +39,9 @@ public class GameController : MonoBehaviour
         //find coordinates of all empty spaces on game board by checking each index in gameBoard if it's 0
         emptySpaces.Clear();
 
-        for (int row = 0; row < BOARD_SIZE; row++)
+        for (int row = 0; row < BoardSize; row++)
         {
-            for (int col = 0; col < BOARD_SIZE; col++)
+            for (int col = 0; col < BoardSize; col++)
             {
                 if (gameBoard[row, col] == 0)
                 {
@@ -84,19 +54,18 @@ public class GameController : MonoBehaviour
         if (emptySpaces.Count != 0)
         {
             (int row, int col) randEmptySpace = emptySpaces[Random.Range(0, emptySpaces.Count)];
-            int tileValue = Random.value < FOUR_SPAWN_CHANCE ? 4 : 2;
+            int tileValue = Random.value < FourSpawnChance ? 4 : 2;
 
             StartCoroutine(SpawnTileAt(randEmptySpace, tileValue, spawnDelay));
         }
         //otherwise game over
         else
         {
-            print("game over.");
-            GameStateChangeAction?.Invoke(false);
+            GameOverAction?.Invoke();
         }
     }
 
-    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay = 0f, bool animatorEnabled = true)
+    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay = 0f)
     {
         //update respective gameBoard index
         gameBoard[coordinate.row, coordinate.col] = value;
@@ -106,7 +75,7 @@ public class GameController : MonoBehaviour
         tiles[coordinate.row, coordinate.col] = Instantiate(tile, tileParent);
 
         //call Initialize to set its coordinate and value display
-        tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value, animatorEnabled);
+        tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
     }
 
     void Update()
@@ -142,12 +111,7 @@ public class GameController : MonoBehaviour
             //if any gameBoard element was different before and after handling game logic
             if (GameBoardIsDifferentFrom(_gameState.boardState))
             {
-                //push the game state onto the stack
-                previousGameStates.Push(_gameState);
-
-                SpawnNewTile(SLIDE_ANIMATION_DURATION);
-
-                GameStateChangeAction?.Invoke(previousGameStates.Count > 1);
+                SpawnNewTile(SlideAnimationDuration);
             }
         }
     }
@@ -155,16 +119,16 @@ public class GameController : MonoBehaviour
     public void SlideRight()
     {
         //for each row
-        for (int row = 0; row < BOARD_SIZE; row++)
+        for (int row = 0; row < BoardSize; row++)
         {
             //for each column except the rightmost one, looping right to left
-            for (int col = BOARD_SIZE - 2; col >= 0; col--)
+            for (int col = BoardSize - 2; col >= 0; col--)
             {
                 //if current cell has a tile on it, slide it as far right as possible
                 if (gameBoard[row, col] != 0)
                 {
                     //loop from [1 column to the right of the current column] to [rightmost column], looking for the first non-empty index
-                    for (int c = col + 1; c < BOARD_SIZE; c++)
+                    for (int c = col + 1; c < BoardSize; c++)
                     {
                         //if the column being checked has a tile on it, check if it has the same value as current cell's tile 
                         if (gameBoard[row, c] != 0)
@@ -200,7 +164,7 @@ public class GameController : MonoBehaviour
                         else
                         {
                             //also if checked column is the rightmost column (i.e. loop is at its last iteration), slide to rightmost column
-                            if (c == BOARD_SIZE - 1)
+                            if (c == BoardSize - 1)
                             {
                                 SlideTile((row, col), (row, c));
                                 break;
@@ -214,13 +178,13 @@ public class GameController : MonoBehaviour
 
     public void SlideUp()
     {
-        for (int col = 0; col < BOARD_SIZE; col++)
+        for (int col = 0; col < BoardSize; col++)
         {
-            for (int row = BOARD_SIZE - 2; row >= 0; row--)
+            for (int row = BoardSize - 2; row >= 0; row--)
             {
                 if (gameBoard[row, col] != 0)
                 {
-                    for (int r = row + 1; r < BOARD_SIZE; r++)
+                    for (int r = row + 1; r < BoardSize; r++)
                     {
                         if (gameBoard[r, col] != 0)
                         {
@@ -248,7 +212,7 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            if (r == BOARD_SIZE - 1)
+                            if (r == BoardSize - 1)
                             {
                                 SlideTile((row, col), (r, col));
                                 break;
@@ -262,9 +226,9 @@ public class GameController : MonoBehaviour
 
     public void SlideLeft()
     {
-        for (int row = 0; row < BOARD_SIZE; row++)
+        for (int row = 0; row < BoardSize; row++)
         {
-            for (int col = 1; col < BOARD_SIZE; col++)
+            for (int col = 1; col < BoardSize; col++)
             {
                 if (gameBoard[row, col] != 0)
                 {
@@ -276,11 +240,11 @@ public class GameController : MonoBehaviour
                             {
                                 MergeTile((row, col), (row, c));
 
-                                for (int i = c + 1; i < BOARD_SIZE; i++)
+                                for (int i = c + 1; i < BoardSize; i++)
                                 {
                                     if (gameBoard[row, i] != 0)
                                     {
-                                        SlideTile((row, i), (row, i - c - col));
+                                        SlideTile((row, i), (row, i + c - col));
                                     }
                                 }
                             }
@@ -310,9 +274,9 @@ public class GameController : MonoBehaviour
 
     public void SlideDown()
     {
-        for (int col = 0; col < BOARD_SIZE; col++)
+        for (int col = 0; col < BoardSize; col++)
         {
-            for (int row = 1; row < BOARD_SIZE; row++)
+            for (int row = 1; row < BoardSize; row++)
             {
                 if (gameBoard[row, col] != 0)
                 {
@@ -324,11 +288,11 @@ public class GameController : MonoBehaviour
                             {
                                 MergeTile((row, col), (r, col));
 
-                                for (int i = r + 1; i < BOARD_SIZE; i++)
+                                for (int i = r + 1; i < BoardSize; i++)
                                 {
                                     if (gameBoard[i, col] != 0)
                                     {
-                                        SlideTile((i, col), (i - r - row, col));
+                                        SlideTile((i, col), (i + r - row, col));
                                     }
                                 }
                             }
@@ -358,8 +322,6 @@ public class GameController : MonoBehaviour
 
     void SlideTile((int row, int col) from, (int row, int col) to)
     {
-        print(string.Format("sliding {0} to {1}", from, to));
-
         gameBoard[to.row, to.col] = gameBoard[from.row, from.col];
         gameBoard[from.row, from.col] = 0;
 
@@ -370,27 +332,25 @@ public class GameController : MonoBehaviour
 
     void MergeTile((int row, int col) from, (int row, int col) to)
     {
-        print(string.Format("merging {0} with {1}", from, to));
-
         gameBoard[to.row, to.col] += gameBoard[from.row, from.col];
         gameBoard[from.row, from.col] = 0;
 
-        UpdateScore(score += gameBoard[to.row, to.col]);
+        SetScore(score += gameBoard[to.row, to.col]);
 
         StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Slide(from, to));
 
         StartCoroutine(tiles[from.row, from.col].GetComponent<Tile>().Shrink());
         StartCoroutine(tiles[to.row, to.col].GetComponent<Tile>().Shrink());
 
-        StartCoroutine(SpawnTileAt((to.row, to.col), gameBoard[to.row, to.col], SLIDE_ANIMATION_DURATION));
+        StartCoroutine(SpawnTileAt((to.row, to.col), gameBoard[to.row, to.col], SlideAnimationDuration));
     }
 
     //compare gameBoard with gameBoardState, looking for any differences between them
     bool GameBoardIsDifferentFrom(int[,] gameBoardState)
     {
-        for (int row = 0; row < BOARD_SIZE; row++)
+        for (int row = 0; row < BoardSize; row++)
         {
-            for (int col = 0; col < BOARD_SIZE; col++)
+            for (int col = 0; col < BoardSize; col++)
             {
                 if (gameBoard[row, col] != gameBoardState[row, col])
                 {
@@ -402,49 +362,8 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    public void Undo()
+    public void ResetGame()
     {
-        ResetGameBoard();
-
-        //remove last gameBoardState from stack and get a copy of it
-        var lastGameState = previousGameStates.Pop();
-
-        //update current game state match elements in lastGameBoardState
-        for (int row = 0; row < BOARD_SIZE; row++)
-        {
-            for (int col = 0; col < BOARD_SIZE; col++)
-            {
-                if (lastGameState.boardState[row, col] != 0)
-                {
-                    StartCoroutine(SpawnTileAt((row, col), lastGameState.boardState[row, col], animatorEnabled: false));
-                    gameBoard[row, col] = lastGameState.boardState[row, col];
-                }
-            }
-        }
-
-        UpdateScore(lastGameState.score);
-        GameStateChangeAction?.Invoke(previousGameStates.Count > 1);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
     }
-
-    #region DEBUG
-
-    void DebugBoard(int[,] board)
-    {
-        for (int row = BOARD_SIZE - 1; row >= 0; row--)
-        {
-            string output = "";
-
-            for (int col = 0; col < BOARD_SIZE; col++)
-            {
-                output += board[row, col];
-                if (col < BOARD_SIZE - 1) { output += ", "; }
-            }
-
-            print(output);
-        }
-
-        print('\n');
-    }
-
-    #endregion
 }

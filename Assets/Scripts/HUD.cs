@@ -1,22 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using TMPro;
 
 public class HUD : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay;
-    [SerializeField] Button undoButton;
+    [SerializeField] TextMeshProUGUI scoreDisplay, highscoreDisplay, gameOverDisplay;
 
     int highScore;
 
     void Awake()
     {
         GameController gc = FindObjectOfType<GameController>();
+        gc.ScoreChangedAction += SetScore;
+        gc.GameOverAction += OnGameOver;
 
-        gc.ScoreChangeAction += SetScore;
-        gc.GameStateChangeAction += SetUndoButtonState;
+        highScore = PlayerPrefs.GetInt("highScore");
+        highscoreDisplay.text = highScore.ToString();
     }
 
     void SetScore(int value)
@@ -29,11 +27,12 @@ public class HUD : MonoBehaviour
         {
             highScore = value;
             highscoreDisplay.text = highScore.ToString();
+            PlayerPrefs.SetInt("highScore", highScore);
         }
     }
 
-    void SetUndoButtonState(bool state)
+    void OnGameOver()
     {
-        undoButton.interactable = state;
+        gameOverDisplay.enabled = true;
     }
 }
