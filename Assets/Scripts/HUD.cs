@@ -35,4 +35,13 @@ public class HUD : MonoBehaviour
     {
         gameOverDisplay.enabled = true;
     }
+
+    public void OnSelectQuit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 }
