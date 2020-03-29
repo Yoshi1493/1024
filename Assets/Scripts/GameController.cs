@@ -399,10 +399,10 @@ public class GameController : MonoBehaviour
 
     void Undo()
     {
+        StopAllCoroutines();
+
         //pop out most recent game state from stack
         GameState mostRecentGameState = previousGameStates.Pop();
-
-        PrintBoard(tiles);
 
         //update current game state match elements in lastGameBoardState
         for (int row = 0; row < BoardSize; row++)
@@ -422,27 +422,10 @@ public class GameController : MonoBehaviour
             }
         }
 
-        PrintBoard(tiles);
-
         //update score
         SetScore(mostRecentGameState.score);
 
         //enable undo button depending on whether or not previous game states exist
         GameStateChangedAction.Invoke(previousGameStates.Count > 1);
-    }
-
-    void PrintBoard<T>(T[,] arr)
-    {
-        for (int row = BoardSize - 1; row >= 0; row--)
-        {
-            string output = "";
-            for (int col = 0; col < BoardSize; col++)
-            {
-                output += arr[row, col];
-                if (col < BoardSize - 1) { output += ", "; }
-            }
-            print(output);
-        }
-        print('\n');
     }
 }
