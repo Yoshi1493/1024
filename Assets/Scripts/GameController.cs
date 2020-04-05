@@ -35,6 +35,8 @@ public class GameController : MonoBehaviour
 
     int score;
 
+    bool inputEnabled;
+
     void SetScore(int value)
     {
         score = value;
@@ -85,7 +87,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay = 0f)
+    IEnumerator SpawnTileAt((int row, int col) coordinate, int value, float spawnDelay)
     {
         //update respective gameBoard index
         gameBoard[coordinate.row, coordinate.col] = value;
@@ -97,6 +99,8 @@ public class GameController : MonoBehaviour
 
         //call Initialize to set its coordinate and value display
         tiles[coordinate.row, coordinate.col].GetComponent<Tile>().Initialize(coordinate, value);
+
+        inputEnabled = true;
     }
 
     void SpawnOldTileAt((int row, int col) coordinate, int value)
@@ -108,7 +112,7 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        GetKeyInput();
+        if (inputEnabled) { GetKeyInput(); }
     }
 
     void GetKeyInput()
@@ -139,14 +143,10 @@ public class GameController : MonoBehaviour
             //if any gameBoard element was different before and after handling game logic
             if (GameBoardIsDifferentFrom(currentGameState.gameBoard))
             {
-                //push onto stack of previous game states
-                previousGameStates.Push(currentGameState);
-
-                //enable the undo button
-                GameStateChangedAction.Invoke(true);
-
-                //spawn new tile after sliding animation finishes
-                SpawnNewTile(SlideAnimationDuration);
+                inputEnabled = false;                               //disable input
+                previousGameStates.Push(currentGameState);          //push onto stack of previous game states
+                GameStateChangedAction.Invoke(true);                //enable the undo button
+                SpawnNewTile(SlideAnimationDuration);               //spawn new tile after sliding animation finishes
             }
         }
     }
