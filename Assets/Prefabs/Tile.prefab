@@ -14,12 +14,12 @@ GameObject:
   - component: {fileID: 32240291024137048}
   - component: {fileID: 3734507063203077314}
   m_Layer: 5
-  m_Name: Tile (image)
+  m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &645747021707086571
 RectTransform:
   m_ObjectHideFlags: 0

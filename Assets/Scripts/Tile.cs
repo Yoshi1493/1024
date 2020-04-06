@@ -28,11 +28,10 @@ public class Tile : MonoBehaviour
         float currentLerpTime = 0f;
         while (currentLerpTime < SlideAnimationDuration)
         {
-            float t = currentLerpTime / SlideAnimationDuration;
-            rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, slideAnimationCurve.Evaluate(t));
-
             yield return new WaitForEndOfFrame();
             currentLerpTime += Time.deltaTime;
+            
+            rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, slideAnimationCurve.Evaluate(currentLerpTime / SlideAnimationDuration));
         }
 
         rectTransform.anchoredPosition = endPos;
