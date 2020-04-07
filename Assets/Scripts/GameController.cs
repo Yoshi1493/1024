@@ -96,7 +96,7 @@ public class GameController : MonoBehaviour
         //"spawn" tile
         board[coordinate.row, coordinate.col].tile.gameObject.SetActive(true);
 
-        //call Initialize to set its coordinate and value display
+        //set position, dispaly value
         board[coordinate.row, coordinate.col].tile.Initialize(coordinate, value);
 
         inputEnabled = true;
@@ -409,7 +409,7 @@ public class GameController : MonoBehaviour
                 if (board[row, col].tile != null)
                 {
                     board[row, col].value = 0;
-                    Destroy(board[row, col].tile);
+                    Destroy(board[row, col].tile.gameObject);
                 }
 
                 if (mostRecentGameState.gameBoard[row, col].value != 0)
@@ -425,4 +425,23 @@ public class GameController : MonoBehaviour
         //enable undo button depending on whether or not previous game states exist
         GameStateChangedAction.Invoke(previousGameStates.Count > 1);
     }
+
+    #region DEBUG
+
+    void PrintGameState(GameState gameState)
+    {
+        for (int row = BoardSize - 1; row >= 0; row--)
+        {
+            string output = "";
+
+            for (int col = 0; col < BoardSize; col++)
+            {
+                output += gameState.gameBoard[row, col].value + "  ";
+            }
+
+            print(output);
+        }
+    }
+
+    #endregion
 }

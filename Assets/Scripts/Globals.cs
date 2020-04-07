@@ -1,4 +1,4 @@
 ﻿public static class Globals
 {
-    public const float SlideAnimationDuration = 0.20f;    //length (sec.) of tile slide animation
+    public const float SlideAnimationDuration = 0.10f;    //length (sec.) of tile slide animation
 }
