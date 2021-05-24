@@ -7,6 +7,11 @@ public class GameController : MonoBehaviour
 {
     [SerializeField] GameObject tile, tileVariant;
     [SerializeField] Transform tileParent;
+    bool inputEnabled = true;
+
+    const float ShortInputDelay = SlideAnimationDuration;
+    const float LongInputDelay = 0.5f;
+    float inputDelay = LongInputDelay;
 
     const int BoardSize = 4;
     (Tile tile, int value)[,] board = new (Tile, int)[BoardSize, BoardSize];
@@ -32,8 +37,6 @@ public class GameController : MonoBehaviour
     public event System.Action GameOverAction;
 
     int score;
-
-    bool inputEnabled;
 
     void SetScore(int value)
     {
@@ -98,8 +101,6 @@ public class GameController : MonoBehaviour
 
         //set position, dispaly value
         board[coordinate.row, coordinate.col].tile.Initialize(coordinate, value);
-
-        inputEnabled = true;
     }
 
     void SpawnOldTileAt((int row, int col) coordinate, int value)
@@ -115,25 +116,25 @@ public class GameController : MonoBehaviour
 
     void GetKeyInput()
     {
-        if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
+        if (inputEnabled && (Input.GetButton("Horizontal") || Input.GetButton("Vertical")))
         {
             //cache the current game state
             GameState previousGameState = new GameState(board.Clone() as (Tile tile, int value)[,], score);
 
             //slide in direction based on key pressed
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKey(KeyCode.RightArrow))
             {
                 SlideRight();
             }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.UpArrow))
             {
                 SlideUp();
             }
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKey(KeyCode.LeftArrow))
             {
                 SlideLeft();
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            if (Input.GetKey(KeyCode.DownArrow))
             {
                 SlideDown();
             }
@@ -141,11 +142,18 @@ public class GameController : MonoBehaviour
             //if any gameBoard element was different before and after handling game logic
             if (GameStateHasChanged(previousGameState))
             {
-                inputEnabled = false;                               //disable input
                 previousGameStates.Push(previousGameState);         //push onto stack of previous game states
                 GameStateChangedAction.Invoke(true);                //enable the undo button
                 SpawnNewTile(SlideAnimationDuration);               //spawn new tile after sliding animation finishes
+
+                inputEnabled = false;
+                StartCoroutine(DelayInput());
             }
+        }
+
+        if (Input.GetButtonUp("Horizontal") || Input.GetButtonUp("Vertical"))
+        {
+            inputDelay = LongInputDelay;
         }
     }
 
@@ -376,6 +384,14 @@ public class GameController : MonoBehaviour
         StartCoroutine(board[to.row, to.col].tile.GetComponent<Tile>().Shrink());
 
         StartCoroutine(SpawnTileAt((to.row, to.col), board[to.row, to.col].value, SlideAnimationDuration));
+    }
+
+    IEnumerator DelayInput()
+    {
+        yield return new WaitForSeconds(inputDelay);
+
+        if (inputDelay == LongInputDelay) { inputDelay = ShortInputDelay; }
+        inputEnabled = true;
     }
 
     //compare values in board[] with gameBoardState, looking for any differences between them
