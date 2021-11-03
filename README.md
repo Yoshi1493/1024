@@ -1,5 +1,7 @@
 # 1024
 
+## Overview
+
 This is part of my game clone series, where I take a game and recreate it in Unity, challenging myself to write all the code and create all the graphical assets (except fonts) from scratch.
 
 This is a clone of the popular 2048 game.  
